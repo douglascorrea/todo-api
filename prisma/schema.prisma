@@ -26,11 +26,12 @@ model Todo {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     title String
+    description String
     completed Boolean @default(false)
-    author User @relation(fields: [authorId], references: [id])
-    authorId String
-    todoListId String
-    todoList TodoList @relation(fields: [todoListId], references: [id])
+    author User? @relation(fields: [authorId], references: [id])
+    authorId String?
+    todoListId String?
+    todoList TodoList? @relation(fields: [todoListId], references: [id])
 }
 
 model TodoList {

@@ -1,37 +1,88 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "title": "Todo API",
-        "description": "Simple Todo API for CRUD operations",
-        "version": "1.0.0"
-    },
-    "host": "localhost:3000",
-    "basePath": "/api",
-    "schemes": [
-        "http"
-    ],
-    "paths": {
-        "/": {
-            "get": {
-                "summary": "Simple Hello World",
-                "description": "Returns a simple Hello World message",
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Hello World message",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Todo API",
+    "description": "Simple Todo API for CRUD operations",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "basePath": "/api",
+  "schemes": ["http"],
+  "paths": {
+    "/todo": {
+      "get": {
+        "summary": "Returns all todos",
+        "description": "Returns all todos",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "An array of todos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArrayOfTodos"
                 }
+              }
             }
+          }
         }
+      }
     }
+  },
+  "components": {
+    "schemas": {
+      "Todo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "ArrayOfTodos": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Todo"
+        },
+        "example": [
+          {
+            "id": 1,
+            "title": "Todo 1",
+            "completed": false,
+            "description": "Todo 1 description",
+            "status": "active",
+            "createdAt": "2018-03-20T15:00:00.000Z",
+            "updatedAt": "2018-03-20T15:00:00.000Z"
+          },
+          {
+            "id": 2,
+            "title": "Todo 2",
+            "completed": false,
+            "description": "Todo 2 description",
+            "status": "active",
+            "createdAt": "2018-03-20T15:00:00.000Z",
+            "updatedAt": "2018-03-20T15:00:00.000Z"
+          }
+        ]
+      }
+    }
+  }
 }
