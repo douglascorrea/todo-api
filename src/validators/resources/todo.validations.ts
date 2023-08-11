@@ -1,9 +1,9 @@
 import { body, param } from 'express-validator'
-import prisma from '../db'
-import handleValidationErrors from './handleValidationErrors'
+import prisma from '../../config/database'
+import handleValidationErrors from '../common/handleValidationErrors'
 
-export const todoValidator = () => {
-  return [
+export const todoValidations = (method: string) => {
+  const create = [
     body('title')
       .isString()
       .withMessage('Title must be a string')
@@ -30,21 +30,29 @@ export const todoValidator = () => {
         }
       }),
   ]
+
+  const update = [
+    param('todoId').custom(async (value) => {
+      if (typeof value !== 'string') {
+        throw new Error('todoId must be a string')
+      }
+      const todo = await prisma.todo.findUnique({
+        where: {
+          id: value,
+        },
+      })
+      if (!todo) {
+        throw new Error('Todo does not exist')
+      }
+    }),
+  ]
+
+  switch (method) {
+    case 'create':
+      return create
+    case 'update':
+      return update
+    default:
+      return []
+  }
 }
-
-export const todoExists = () => [
-  param('todoId').custom(async (value) => {
-    if (typeof value !== 'string') {
-      throw new Error('todoId must be a string')
-    }
-    const todo = await prisma.todo.findUnique({
-      where: {
-        id: value,
-      },
-    })
-    if (!todo) {
-      throw new Error('Todo does not exist')
-    }
-  }),
-]
-

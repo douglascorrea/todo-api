@@ -2,27 +2,11 @@ import { Request, Response, Router } from 'express'
 import { body, validationResult } from 'express-validator'
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from '../swagger.json'
-import { createTodo, updateTodo } from './handlers/todo'
-import { todoExists, todoValidator } from './validators/todoValidator'
-import { validate } from './validators/validate'
+import { createTodo, updateTodo } from './api/todos/todo.controller'
+import { todoExists, todoValidator } from './validators/resources/todo.validations'
+import { validate } from './validators/common/validate'
 
 const router = Router()
-
-/**
- * Todo
- */
-
-router.get('/todo', (req, res) => {
-  res.json({ message: 'Hello World 2!' })
-})
-router.get('/todo/:todoId', (req, res) => {})
-router.put('/todo/:todoId', validate(todoExists, todoValidator), updateTodo)
-router.post(
-  '/todo',
-  validate(todoValidator),
-  createTodo
-)
-router.delete('/todo/:todoId', (req, res) => {})
 
 /**
  * TodoList
