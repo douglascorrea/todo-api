@@ -2,23 +2,24 @@ import { Router } from 'express'
 import * as TodoController from './todo.controller'
 import { validate } from '../../validators/common/validate'
 import { todoValidations } from '../../validators/resources/todo.validations'
+import { asyncHandler } from '../../utils/asyncHandler'
 
 const router = Router()
 
-router.get('/todos', (req, res) => {
+router.get('/', (req, res) => {
   res.json({ message: 'Hello World 2!' })
 })
-router.get('/todos/:todoId', (req, res) => {})
+router.get('/:todoId', (req, res) => {})
 router.put(
-  '/todos/:todoId',
+  '/:todoId',
   validate(...todoValidations('update')),
-  TodoController.updateTodo
+  asyncHandler(TodoController.updateTodo)
 )
 router.post(
-  '/todos',
+  '/',
   validate(...todoValidations('create')),
-  TodoController.createTodo
+  asyncHandler(TodoController.createTodo)
 )
-router.delete('/todos/:todoId', (req, res) => {})
+router.delete('/:todoId', (req, res) => {})
 
 export default router
