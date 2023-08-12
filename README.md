@@ -51,6 +51,8 @@ To run the project in development mode:
 
 It will automatically start docker containers for PostgreSQL, run the migrations and start development server. The development server run in your local machine so that is why you need to have NodeJS installed.
 
+The development server will be running at `http://localhost:3000`. And the API DOCs will be available at `http://localhost:3000/api/docs`.
+
 ### Testing
 
 Most of the tests are **Integration Tests**. They test the API endpoints and the database layer. They are written using Jest and Supertest.
@@ -73,7 +75,7 @@ To run integration tests with coverage:
 This script will handle setting up the test database, running the tests, and tearing down the Docker environment.
 
 ## API Documentation
-The API is documented using OpenAPI / Swagger and can be accessed at the `/api/docs` endpoint when the server is running.
+The API is documented using OpenAPI / Swagger and can be accessed at the `http://localhost:3000/api/docs` endpoint when the server is running.
 
 ### Editing swagger defintion online
 If you want to quickly see the API documentation without bringing the server up, you can use the online swagger editor and import the swagger.json (since this repo is public) file from this repository. The link to the online editor is below:
