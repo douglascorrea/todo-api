@@ -1,6 +1,5 @@
 import { body, param } from 'express-validator'
 import prisma from '../../config/database'
-import handleValidationErrors from '../common/handleValidationErrors'
 
 export const todoValidations = (method: string) => {
   const create = [
