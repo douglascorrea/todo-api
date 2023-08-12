@@ -1,10 +1,7 @@
-import { Request } from 'express'
 import { body, param } from 'express-validator'
 import { userIdParam } from '../users/user.validations'
 import { TodoListService } from './todoList.service'
 import AppError from '../../utils/appError'
-import { todo } from 'node:test'
-import logger from '../../utils/logger'
 
 const todoListForUserAlreadyExists = async (title: string, userId: string) => {
   if (await TodoListService.userTodoListByTitleExists(userId, title)) {
@@ -13,7 +10,7 @@ const todoListForUserAlreadyExists = async (title: string, userId: string) => {
   return true
 }
 
-const todoListForUserExists = async (userId: string, todoListId: string) => {
+export const todoListForUserExists = async (userId: string, todoListId: string) => {
   if (!(await TodoListService.userTodoListByIdExists(userId, todoListId))) {
     throw new AppError('TodoList not found', 404)
   }

@@ -1,16 +1,17 @@
 import { NextFunction, Request, Response } from 'express'
 import { TodoService } from './todo.service'
 
-export const createTodo = async (
+export const createUserTodo = async (
   req: Request,
   res: Response,
 ) => {
   const todo = await TodoService.createUserTodo(
     req.params.userId,
     req.body.title,
-    req.body.description
+    req.body.description,
+    req.body.todoListId
   )
-  res.json({ data: todo })
+  res.status(201).json({ data: todo })
 }
 
 export const updateTodo = async (

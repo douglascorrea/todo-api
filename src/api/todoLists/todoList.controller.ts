@@ -1,7 +1,5 @@
-import { NextFunction, Request, Response } from 'express'
-import AppError from '../../utils/appError'
+import { Request, Response } from 'express'
 import { TodoListService } from './todoList.service'
-import logger from '../../utils/logger'
 
 export const createUserTodoList = async (req: Request, res: Response) => {
   const user = await TodoListService.createUserTodoList(

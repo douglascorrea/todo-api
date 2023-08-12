@@ -5,7 +5,7 @@ import app from '../../../src/server'
 import { UserService } from '../../../src/api/users/user.service'
 import { TodoService } from '../../../src/api/todos/todo.service'
 
-describe(`User's TodoList Routes`, () => {
+describe(`User's Todo Routes`, () => {
   let createdUser: User
 
   beforeAll(async () => {
@@ -29,7 +29,7 @@ describe(`User's TodoList Routes`, () => {
         description: 'New Todo Description',
       }
       const res = await request(app)
-        .post(`/users/${createdUser.id}/todos`)
+        .post(`/api/users/${createdUser.id}/todos`)
         .send(newTodoData)
 
       expect(res.statusCode).toEqual(201)

@@ -1,8 +1,11 @@
 import { body, param } from 'express-validator'
 import prisma from '../../config/database'
+import { userIdParam } from '../users/user.validations'
+import { todoListForUserExists } from '../todoLists/todoList.validations'
 
 export const todoValidations = (method: string) => {
   const create = [
+    userIdParam,
     body('title')
       .isString()
       .withMessage('Title must be a string')
@@ -15,18 +18,8 @@ export const todoValidations = (method: string) => {
       .withMessage('Description must be at least 3 characters long'),
     body('todoListId')
       .optional()
-      .custom(async (value) => {
-        if (typeof value !== 'string') {
-          throw new Error('todoListId must be a string')
-        }
-        const todoList = await prisma.todoList.findUnique({
-          where: {
-            id: value,
-          },
-        })
-        if (!todoList) {
-          throw new Error('TodoList does not exist')
-        }
+      .custom(async (todoListId, { req }) => {
+        return await todoListForUserExists(req.params?.userId, todoListId)
       }),
   ]
 
