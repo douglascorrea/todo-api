@@ -73,5 +73,9 @@ To run integration tests with coverage:
 This script will handle setting up the test database, running the tests, and tearing down the Docker environment.
 
 ## API Documentation
+The API is documented using OpenAPI / Swagger and can be accessed at the `/api/docs` endpoint when the server is running.
 
-The API is documented using OpenAPI and can be accessed at the `/api/docs` endpoint when the server is running.
+### Editing swagger defintion online
+If you want to quickly see the API documentation without bringing the server up, you can use the online swagger editor and import the swagger.json (since this repo is public) file from this repository. The link to the online editor is below:
+
+https://editor.swagger.io/?raw=https://raw.githubusercontent.com/douglascorrea/todo-api/master/swagger.json
