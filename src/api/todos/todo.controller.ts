@@ -5,7 +5,8 @@ export const createTodo = async (
   req: Request,
   res: Response,
 ) => {
-  const todo = await TodoService.createTodo(
+  const todo = await TodoService.createUserTodo(
+    req.params.userId,
     req.body.title,
     req.body.description
   )

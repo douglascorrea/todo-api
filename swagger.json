@@ -113,6 +113,16 @@
             "$ref": "#/components/parameters/userId"
           }
         ],
+        "requestBody": {
+          "description": "Todo list object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestBodyTodoList"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Todo list created successfully",
@@ -131,6 +141,9 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "#/components/parameters/includeTodos"
           }
         ],
         "responses": {
@@ -181,6 +194,16 @@
             "$ref": "#/components/parameters/todoListId"
           }
         ],
+        "requestBody": {
+          "description": "Todo list object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestBodyTodoList"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Todo list updated successfully",
@@ -202,6 +225,9 @@
           },
           {
             "$ref": "#/components/parameters/todoListId"
+          },
+          {
+            "$ref": "#/components/parameters/deleteNestedTodos"
           }
         ],
         "responses": {
@@ -380,6 +406,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "format": "uuid",
             "description": "User ID"
           },
           "name": {
@@ -450,9 +477,11 @@
       },
       "TodoList": {
         "type": "object",
+        "required": ["id", "title", "userId", "createdAt", "updatedAt"],
         "properties": {
           "id": {
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "description": "Todo List ID"
           },
           "title": {
@@ -460,14 +489,44 @@
             "description": "Todo List title"
           },
           "userId": {
-            "type": "integer",
+            "type": "string",
             "description": "User ID associated with the Todo List"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "User creation date"
+          },
+          "updateAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "User creation date"
+          },
+          "todos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Todo"
+            }
           }
         },
         "example": {
-          "id": 1,
-          "title": "Work tasks",
-          "userId": 1
+          "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
+          "createdAt": "2023-08-12T11:45:56.872Z",
+          "updatedAt": "2023-08-12T11:45:56.872Z",
+          "title": "adassdas",
+          "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f"
+        }
+      },
+      "RequestBodyTodoList": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Todo List title"
+          }
+        },
+        "example": {
+          "title": "Work tasks"
         }
       },
       "ArrayOfTodoLists": {
@@ -477,14 +536,18 @@
         },
         "example": [
           {
-            "id": 1,
-            "title": "Work tasks",
-            "userId": 1
+            "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
+            "createdAt": "2023-08-12T11:45:56.872Z",
+            "updatedAt": "2023-08-12T11:45:56.872Z",
+            "title": "adassdas",
+            "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f"
           },
           {
-            "id": 2,
-            "title": "Home tasks",
-            "userId": 1
+            "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
+            "createdAt": "2023-08-12T11:45:56.872Z",
+            "updatedAt": "2023-08-12T11:45:56.872Z",
+            "title": "adassdas",
+            "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f"
           }
         ]
       },
@@ -492,7 +555,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "description": "Todo ID"
           },
           "title": {
@@ -504,15 +568,59 @@
             "description": "Whether the todo is completed or not"
           },
           "userId": {
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "description": "User ID associated with the Todo"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "User creation date"
+          },
+          "updateAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "User creation date"
           }
         },
         "example": {
-          "id": 1,
-          "title": "Finish project",
-          "completed": false,
-          "userId": 1
+          "id": "2b523ac6-3133-4ef4-9c8d-cbee01079191",
+          "createdAt": "2023-08-12T13:52:36.315Z",
+          "updatedAt": "2023-08-12T13:52:36.315Z",
+          "title": "My TodoList 3",
+          "userId": "fc16c877-2581-4fa0-a44c-d1b534a21d62",
+          "todos": [
+            {
+              "id": "b0c79c03-593d-408d-bb3f-40bf1b30d3a8",
+              "createdAt": "2023-08-12T13:52:36.346Z",
+              "updatedAt": "2023-08-12T13:52:36.346Z",
+              "title": "My Todo 1 for list 3",
+              "description": "My Todo 1 description for list 3",
+              "completed": false,
+              "userId": "fc16c877-2581-4fa0-a44c-d1b534a21d62",
+              "todoListId": "2b523ac6-3133-4ef4-9c8d-cbee01079191"
+            },
+            {
+              "id": "315df5fe-5c60-49b4-92a1-f0855a5130d7",
+              "createdAt": "2023-08-12T13:52:36.346Z",
+              "updatedAt": "2023-08-12T13:52:36.346Z",
+              "title": "My Todo 3 for list 3",
+              "description": "My Todo 3 description for list 3",
+              "completed": false,
+              "userId": "fc16c877-2581-4fa0-a44c-d1b534a21d62",
+              "todoListId": "2b523ac6-3133-4ef4-9c8d-cbee01079191"
+            },
+            {
+              "id": "8b3af4e2-4a72-41ed-b12d-9b64c658d717",
+              "createdAt": "2023-08-12T13:52:36.346Z",
+              "updatedAt": "2023-08-12T13:52:36.346Z",
+              "title": "My Todo 2 for list 3",
+              "description": "My Todo 2 description for list 3",
+              "completed": false,
+              "userId": "fc16c877-2581-4fa0-a44c-d1b534a21d62",
+              "todoListId": "2b523ac6-3133-4ef4-9c8d-cbee01079191"
+            }
+          ]
         }
       },
       "ArrayOfTodos": {
@@ -552,7 +660,7 @@
         "required": true,
         "description": "Unique identifier of the todo list",
         "schema": {
-          "type": "integer"
+          "type": "string"
         }
       },
       "todoId": {
@@ -561,7 +669,25 @@
         "required": true,
         "description": "Unique identifier of the todo",
         "schema": {
-          "type": "integer"
+          "type": "string"
+        }
+      },
+      "includeTodos": {
+        "name": "includeTodos",
+        "in": "query",
+        "required": false,
+        "description": "Include todos in the response",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "deleteNestedTodos": {
+        "name": "deleteNestedTodos",
+        "in": "query",
+        "required": false,
+        "description": "Delete nested todos",
+        "schema": {
+          "type": "boolean"
         }
       }
     }

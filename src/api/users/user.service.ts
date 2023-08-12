@@ -41,4 +41,20 @@ export class UserService {
       },
     })
   }
+
+  static async userExists(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+    return !!user
+  }
+
+  static async emailExists(email: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    })
+    return !!user
+  }
 }

@@ -28,7 +28,7 @@ model Todo {
     title String
     description String
     completed Boolean @default(false)
-    user User? @relation(fields: [userId], references: [id])
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String?
     todoListId String?
     todoList TodoList? @relation(fields: [todoListId], references: [id])
@@ -40,6 +40,6 @@ model TodoList {
     updatedAt DateTime @updatedAt
     title String
     todos Todo[]
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
 }

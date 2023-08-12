@@ -11,9 +11,11 @@
     "migrate:postgres:dev": "dotenv -e .env.development -- npx prisma migrate deploy",
     "migrate:postgres:dev:reset": "dotenv -e .env.development -- npx prisma migrate reset --force",
     "migrate:postgres:test": "npm run docker:test:up && dotenv -e .env.test -- npx prisma migrate reset --force && dotenv -e .env.test -- npx prisma migrate deploy",
-    "test:integration": "npm run migrate:postgres:test && dotenv -e .env.test -- jest -i --verbose --testMatch='**/integration/**/*.test.ts' ; npm run docker:test:down",
+    "test:integration": "npm run migrate:postgres:test && dotenv -e .env.test -- jest --verbose --testMatch='**/integration/**/*.test.ts' ; npm run docker:test:down",
+    "test:integration:watch": "npm run migrate:postgres:test && dotenv -e .env.test -- jest --verbose --watch --testMatch='**/integration/**/*.test.ts' ; npm run docker:test:down",
+    "test:integration:arguments": "npm run migrate:postgres:test && dotenv -e .env.test -- jest --verbose --testMatch='**/integration/**/*.test.ts'",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test:integration:coverage": "npm run migrate:postgres:test && dotenv -e .env.test -- jest --verbose --testMatch='**/integration/**/*.test.ts' --coverage ; npm run docker:test:down",
     "build": "tsc",
     "dev": "npm run docker:dev:up && npm run migrate:postgres:dev && dotenv -e .env.development -- nodemon --exec ts-node src/index.ts"
   },

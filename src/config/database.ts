@@ -10,10 +10,15 @@ import logger from '../utils/logger'
  */
 
 export const getPrismaClient = (): PrismaClient => {
-  if (process.env.NODE_ENV === 'production') {
-    return getPrismaClientForProduction()
-  } else {
-    return getPrismaClientForDevelopment()
+  switch (process.env.NODE_ENV) {
+    case 'production':
+      return getPrismaClientForProduction()
+    case 'test':
+      return getPrismaClientForTest()
+    case 'development':
+      return getPrismaClientForDevelopment()
+    default:
+      return getPrismaClientForDevelopment()
   }
 }
 
@@ -48,6 +53,24 @@ const getPrismaClientForProduction = (): PrismaClient => {
     logger.info(`Prisma message ${e.message}`)
     logger.info(`Prisma target ${e.target}`)
     logger.info(`Prisma timestamp ${e.timestamp}`)
+  })
+  return prisma
+}
+const getPrismaClientForTest = (): PrismaClient => {
+  /* Silent Prisma Client message for test environment
+   */
+  const prisma = new PrismaClient({
+    log: [
+      {
+        emit: 'event',
+        level: 'error',
+      },
+    ],
+  })
+  prisma.$on('error', (e) => {
+    logger.error(`Prisma message ${e.message}`)
+    logger.error(`Prisma target ${e.target}`)
+    logger.error(`Prisma timestamp ${e.timestamp}`)
   })
   return prisma
 }

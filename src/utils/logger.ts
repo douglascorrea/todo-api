@@ -5,6 +5,9 @@ import os from 'os'
 let logLevel = 'info' // default
 if (process.env.NODE_ENV === 'development') {
   logLevel = 'debug'
+} else if (process.env.NODE_ENV === 'test') {
+  // Don't log anything during tests since it's distracting
+  logLevel = 'off'
 } else if (process.env.NODE_ENV === 'production') {
   logLevel = 'warn'
 }
@@ -23,10 +26,6 @@ const logger = winston.createLogger({
     serviceName: 'todo-api',
     serverName: os.hostname(),
   },
-  transports: [
-    new winston.transports.File({ filename: 'log/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'log/combined.log' }),
-  ],
 })
 
 // If we're not in production, also log to the `console` with the format: `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
@@ -36,6 +35,13 @@ if (process.env.NODE_ENV !== 'production') {
       format: winston.format.simple(),
     })
   )
+}
+if (process.env.NODE_ENV === 'production') {
+  // If we're in production, log to the `error.log` and `combined.log` files
+  logger.add(
+    new winston.transports.File({ filename: 'log/error.log', level: 'error' })
+  )
+  logger.add(new winston.transports.File({ filename: 'log/combined.log' }))
 }
 
 export default logger

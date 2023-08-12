@@ -1,45 +1,44 @@
 import { body, param } from 'express-validator'
-import prisma from '../../config/database'
+import { UserService } from './user.service'
 import AppError from '../../utils/appError'
+export const emailAlreadyExists = async (email: string) => {
+  if (await UserService.emailExists(email)) {
+    throw new Error('Email already in use')
+  }
+  return true
+}
+
+export const userExists = async (userId: string) => {
+  if (!(await UserService.userExists(userId))) {
+    throw new AppError('User not found', 404)
+  }
+  return true
+}
+
+export const userIdParam = param('userId')
+  .exists()
+  .withMessage('User ID is required')
+  .isString()
+  .withMessage('User ID must be a string')
+  .custom(userExists)
+  .withMessage({ message: 'User not found', statusCode: 404 })
 
 export const userValidations = (method: string) => {
   const create = [
     body('name')
       .isString()
       .withMessage('Name must be a string')
-      .isLength({ min: 3 }),
+      .notEmpty()
+      .withMessage('Name is required'),
     body('email')
-      .custom(async (value) => {
-        if (typeof value !== 'string') {
-          throw new Error('Email must be a string')
-        }
-        const user = await prisma.user.findUnique({
-          where: {
-            email: value,
-          },
-        })
-        if (user) {
-          throw new Error('Email already in use')
-        }
-      })
+      .exists()
+      .withMessage('Email is required')
+      .isString()
+      .withMessage('Email must be a string')
       .isEmail()
-      .withMessage('Email must be a valid email'),
+      .withMessage('Email must be a valid email')
+      .custom(emailAlreadyExists),
   ]
-
-  const userIdParam = param('userId')
-    .isString()
-    .withMessage('User ID must be a string')
-    .custom(async (value, { req }) => {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: value,
-        },
-      })
-        if (!user) {
-            throw new AppError('User not found', 404)
-        }
-    })
-    .withMessage({ message: 'User not found', statusCode: 404 })
 
   const update = [
     userIdParam,
@@ -49,21 +48,11 @@ export const userValidations = (method: string) => {
       .isLength({ min: 3 }),
     body('email')
       .optional()
-      .custom(async (value) => {
-        if (typeof value !== 'string' || value === '') {
-          return
-        }
-        const user = await prisma.user.findUnique({
-          where: {
-            email: value,
-          },
-        })
-        if (user) {
-          throw new Error('Email already in use')
-        }
-      })
+      .isString()
+      .withMessage('Email must be a string')
       .isEmail()
-      .withMessage('Email must be a valid email'),
+      .withMessage('Email must be a valid email')
+      .custom(emailAlreadyExists),
   ]
 
   switch (method) {

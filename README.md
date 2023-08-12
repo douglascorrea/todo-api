@@ -53,12 +53,21 @@ It will automatically start docker containers for PostgreSQL, run the migrations
 
 ### Testing
 
+Most of the tests are **Integration Tests**. They test the API endpoints and the database layer. They are written using Jest and Supertest.
+
 To run integration tests:
 
 1. Simply execute the following command:
 
    ```bash
    npm run test:integration
+   ```
+To run integration tests with coverage:
+
+1. Simply execute the following command:
+
+   ```bash
+   npm run test:integration:coverage
    ```
 
 This script will handle setting up the test database, running the tests, and tearing down the Docker environment.
