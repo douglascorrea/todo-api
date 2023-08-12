@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import * as TodoController from './todo.controller'
 import { validate } from '../../validators/common/validate'
-import { todoValidations } from '../../validators/resources/todo.validations'
+import { todoValidations } from './todo.validations'
 import { asyncHandler } from '../../utils/asyncHandler'
 
 const router = Router()
