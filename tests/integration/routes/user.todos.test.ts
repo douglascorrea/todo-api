@@ -23,7 +23,7 @@ describe(`User's Todo Routes`, () => {
     await UserService.deleteUser(createdUser.id)
   })
   describe('POST /users/:userId/todos', () => {
-    it('should create a new todo for a user', async () => {
+    it('should create a new todo for a user without todolist id', async () => {
       const newTodoData = {
         title: 'New Todo',
         description: 'New Todo Description',
