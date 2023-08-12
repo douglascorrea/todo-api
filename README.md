@@ -78,4 +78,6 @@ The API is documented using OpenAPI / Swagger and can be accessed at the `/api/d
 ### Editing swagger defintion online
 If you want to quickly see the API documentation without bringing the server up, you can use the online swagger editor and import the swagger.json (since this repo is public) file from this repository. The link to the online editor is below:
 
-https://editor-next.swagger.io/?raw=https://raw.githubusercontent.com/douglascorrea/todo-api/master/swagger.json
+1) Go to https://editor-next.swagger.io/
+2) Import the swagger.json file from this repository: using File -> Import URL
+https://raw.githubusercontent.com/douglascorrea/todo-api/master/swagger.json
