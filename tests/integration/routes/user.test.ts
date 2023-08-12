@@ -1,6 +1,7 @@
 import request from 'supertest'
 import '../utils/apiValidator'
 import app from '../../../src/server'
+import { UserService } from '../../../src/api/users/user.service'
 
 describe('User Routes', () => {
   describe('POST /users', () => {
@@ -26,6 +27,26 @@ describe('User Routes', () => {
       expect(res).toSatisfyApiSpec()
     })
   })
+
+  describe('GET /users/{userId}', () => {
+    it('should retrieve a specific user by ID', async () => {
+      const newUserData = {
+        name: 'David Doe',
+        email: 'daviddoe@example.com',
+      }
+
+      const newUser = await UserService.createUser(newUserData.name, newUserData.email)
+
+      const userId = newUser.id;
+
+      const getResponse = await request(app).get(`/api/users/${userId}`)
+
+      expect(getResponse.statusCode).toEqual(200)
+      expect(getResponse.body.data).toSatisfySchemaInApiSpec('User')
+
+    })
+  })
+
 
   describe('PUT /users', () => {
     it('should create a new user and match OpenAPI spec', async () => {
