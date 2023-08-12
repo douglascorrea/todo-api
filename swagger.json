@@ -76,6 +76,11 @@
       },
       "put": {
         "summary": "Update a specific user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          }
+        ],
         "requestBody": {
           "description": "User object",
           "content": {
@@ -521,7 +526,7 @@
         "required": true,
         "description": "Unique identifier of the user",
         "schema": {
-          "type": "integer"
+          "type": "string"
         }
       },
       "todoListId": {

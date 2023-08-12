@@ -1,4 +1,3 @@
-
 import prisma from '../../config/database'
 
 export class UserService {
@@ -13,5 +12,33 @@ export class UserService {
 
   static async getAllUsers() {
     return prisma.user.findMany()
+  }
+
+  static async getUserById(userId: string) {
+    return prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    })
+  }
+
+  static async updateUser(userId: string, name: string, email: string) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        name: name,
+        email: email,
+      },
+    })
+  }
+
+  static async deleteUser(userId: string) {
+    return prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    })
   }
 }
