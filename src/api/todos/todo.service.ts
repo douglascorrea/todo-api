@@ -4,7 +4,7 @@ export class TodoService {
   static async createUserTodo(
     userId: string,
     title: string,
-    description: string,
+    description?: string,
     todoListId?: string
   ) {
     return await prisma.todo.create({
@@ -17,16 +17,36 @@ export class TodoService {
     })
   }
 
+  static async getAllUserTodos(userId: string, completed?: boolean) {
+    return prisma.todo.findMany({
+      where: {
+        userId,
+        completed,
+      },
+      include: {
+        todoList: true,
+      },
+    })
+  }
+
   static async getUserTodoById(userId: string, todoId: string) {
     return prisma.todo.findUnique({
       where: {
         id: todoId,
         userId,
       },
+      include: {
+        todoList: true,
+      },
     })
   }
 
-  static async updateTodo(todoId: string, title: string, description: string) {
+  static async updateUserTodoById(
+    todoId: string,
+    title: string,
+    description: string,
+    todoListId?: string
+  ) {
     return prisma.todo.update({
       where: {
         id: todoId,
@@ -34,6 +54,7 @@ export class TodoService {
       data: {
         title: title,
         description: description,
+        todoListId: todoListId,
       },
     })
   }
@@ -45,5 +66,58 @@ export class TodoService {
         userId,
       },
     })
+  }
+
+  static async completeUserTodoById(userId: string, todoId: string) {
+    return prisma.todo.update({
+      where: {
+        id: todoId,
+        userId,
+      },
+      data: {
+        completed: true,
+      },
+    })
+  }
+
+  static async uncompleteUserTodoById(userId: string, todoId: string) {
+    return prisma.todo.update({
+      where: {
+        id: todoId,
+        userId,
+      },
+      data: {
+        completed: false,
+      },
+    })
+  }
+
+  static async toggleUserTodoById(userId: string, todoId: string) {
+    const todo = await prisma.todo.findUnique({
+      where: {
+        id: todoId,
+        userId,
+      },
+    })
+
+    return prisma.todo.update({
+      where: {
+        id: todoId,
+        userId,
+      },
+      data: {
+        completed: !todo?.completed,
+      },
+    })
+  }
+
+  static async userTodoByIdExists(userId: string, todoId: string) {
+    const todo = await prisma.todo.findUnique({
+      where: {
+        id: todoId,
+        userId,
+      },
+    })
+    return !!todo
   }
 }

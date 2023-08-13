@@ -6,3 +6,11 @@ const todoListWithTodos = Prisma.validator<Prisma.TodoListDefaultArgs>()({
   },
 })
 export type TodoListWithTodos = Prisma.TodoListGetPayload<typeof todoListWithTodos>
+
+
+const todoWithTodoLists = Prisma.validator<Prisma.TodoDefaultArgs>()({
+  include: {
+    todoList: true,
+  },
+})
+export type TodoWithTodoLists = Prisma.TodoGetPayload<typeof todoWithTodoLists>

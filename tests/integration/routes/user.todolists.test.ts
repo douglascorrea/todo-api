@@ -203,7 +203,10 @@ describe(`User's todoLists Routes`, () => {
     afterAll(async () => {
       await Promise.all(
         createdTodoLists.map(async (todoList) => {
-          await TodoListService.deleteUserTodoListById(createdUser.id, todoList.id)
+          await TodoListService.deleteUserTodoListById(
+            createdUser.id,
+            todoList.id
+          )
         })
       )
     })
@@ -298,6 +301,20 @@ describe(`User's todoLists Routes`, () => {
             true
           )
         expect(res.body.todos.length).toEqual(matchWithTodos?.todos.length)
+      })
+
+      it('should fail if user is not owner of todo list', async () => {
+        const createdUserTwo = await UserService.createUser(
+          'Another User todo 4 todo list 4',
+          'anotherusertodo4todolistget@example.com'
+        )
+        const res = await request(app).get(
+          `/api/users/${createdUserTwo.id}/todoLists/${createdTodoLists[0].id}`
+        )
+        // it fails with 404 since there is no auth middleware
+        expect(res.statusCode).toEqual(404)
+        // Clean up todo after test
+        await UserService.deleteUser(createdUserTwo.id)
       })
 
       it('should return a 404 if the User does not exist', async () => {
@@ -532,6 +549,24 @@ describe(`User's todoLists Routes`, () => {
         newTodo.id
       )
       expect(deletedTodo).toBeNull()
+    })
+
+    it('should fail if user is not owner of todo list', async () => {
+      const createdUserTwo = await UserService.createUser(
+        'Another User todo todo list delete',
+        'anotherusertodolistdelete@example.com'
+      )
+      const createdTodoList = await TodoListService.createUserTodoList(
+        createdUser.id,
+        'TodoList 1'
+      )
+      const res = await request(app).delete(
+        `/api/users/${createdUserTwo.id}/todoLists/${createdTodoList.id}`
+      )
+      // it fails with 404 since there is no auth middleware
+      expect(res.statusCode).toEqual(404)
+      // Clean up todo after test
+      await UserService.deleteUser(createdUserTwo.id)
     })
 
     it('should return a 404 if the TodoList does not exist', async () => {

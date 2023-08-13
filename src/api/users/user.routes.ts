@@ -31,31 +31,51 @@ router.post(
   asyncHandler(TodoListController.createUserTodoList)
 )
 router.get(
-    '/:userId/todoLists',
-    validate(...todoListValidations('getAll')),
-    asyncHandler(TodoListController.getAllUserTodoLists)
+  '/:userId/todoLists',
+  validate(...todoListValidations('getAll')),
+  asyncHandler(TodoListController.getAllUserTodoLists)
 )
 router.get(
-    '/:userId/todoLists/:todoListId',
-    validate(...todoListValidations('getById')),
-    asyncHandler(TodoListController.getUserTodoListById)
+  '/:userId/todoLists/:todoListId',
+  validate(...todoListValidations('getById')),
+  asyncHandler(TodoListController.getUserTodoListById)
 )
 router.put(
-    '/:userId/todoLists/:todoListId',
-    validate(...todoListValidations('update')),
-    asyncHandler(TodoListController.updateUserTodoList)
+  '/:userId/todoLists/:todoListId',
+  validate(...todoListValidations('update')),
+  asyncHandler(TodoListController.updateUserTodoList)
 )
 router.delete(
-    '/:userId/todoLists/:todoListId',
-    validate(...todoListValidations('delete')),
-    asyncHandler(TodoListController.deleteUserTodoList)
+  '/:userId/todoLists/:todoListId',
+  validate(...todoListValidations('delete')),
+  asyncHandler(TodoListController.deleteUserTodoList)
 )
 
 // User's Todo routes
 router.post(
-    '/:userId/todos',
-    validate(...todoValidations('create')),
-    asyncHandler(TodoController.createUserTodo)
+  '/:userId/todos',
+  validate(...todoValidations('create')),
+  asyncHandler(TodoController.createUserTodo)
+)
+router.get(
+  '/:userId/todos',
+  validate(...todoValidations('getAll')),
+  asyncHandler(TodoController.getAllUserTodos)
+)
+router.get(
+    '/:userId/todos/:todoId',
+    validate(...todoValidations('getById')),
+    asyncHandler(TodoController.getUserTodoById)
+)
+router.put(
+    '/:userId/todos/:todoId',
+    validate(...todoValidations('update')),
+    asyncHandler(TodoController.updateUserTodoById)
+)
+router.delete(
+    '/:userId/todos/:todoId',
+    validate(...todoValidations('delete')),
+    asyncHandler(TodoController.deleteUserTodoById)
 )
 
 export default router

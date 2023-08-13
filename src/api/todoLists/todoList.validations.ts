@@ -10,7 +10,13 @@ const todoListForUserAlreadyExists = async (title: string, userId: string) => {
   return true
 }
 
-export const todoListForUserExists = async (userId: string, todoListId: string) => {
+export const userTodoListExists = async (
+  userId: string,
+  todoListId: string | null
+) => {
+  if (todoListId === null) {
+    return true
+  }
   if (!(await TodoListService.userTodoListByIdExists(userId, todoListId))) {
     throw new AppError('TodoList not found', 404)
   }
@@ -23,7 +29,7 @@ export const todoListIdParam = param('todoListId')
   .isString()
   .withMessage('TodoList ID must be a string')
   .custom(async (todoListId, { req }) => {
-    return await todoListForUserExists(req.params?.userId, todoListId)
+    return await userTodoListExists(req.params?.userId, todoListId)
   })
   .withMessage({ message: 'TodoList not found', statusCode: 404 })
 
