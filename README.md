@@ -68,9 +68,15 @@ I've also set a `test:integration:coverage` script for getting coverage report w
 
 Currently are **101 tests** separated in *4 test suites* and covering **88.52%** of the code.
 
+Check [all tests screenshot](./all-tests.png)
+
+
+
 #### Using express-validator for Request Validation
 
 I decided to use express-validator for Request Validation because it is easy to use and provide a good way to validate the request body, param and query parameters.
+
+I put a lot of efforts on validation, since I think this is a important part of this project to demonstrate how to validate the requests and avoid any data inconsistency in the database. And also this plays the role of implementing part of the business logic and also demonstrate my skills in this area.
 
 #### Using Winston and Morgan for Logging
 
