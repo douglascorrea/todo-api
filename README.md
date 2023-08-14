@@ -146,6 +146,8 @@ Before running the project, you need to set up environment variables. This proje
 ```env
 NODE_ENV=development
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/todoapi
+
+# Microsoft Graph API Integration
 MICROSOFT_AUTHORITY='https://login.microsoftonline.com/common'
 MICROSOFT_REDIRECT_URI='http://localhost:3000/auth/microsoft/callback'
 MICROSOFT_SCOPES='user.read,calendars.readwrite,offline_access,tasks.readwrite'
@@ -162,6 +164,17 @@ MICROSOFT_CLIENT_SECRET='hBJ8Q~c~t1qeXqMIJ.8uTrmz7JZnm3_3zQskfaSG'
 ```env
 NODE_ENV=test
 DATABASE_URL=postgres://prisma:prisma@localhost:5433/tests
+
+# Microsoft Graph API Integration
+MICROSOFT_AUTHORITY='https://login.microsoftonline.com/common'
+MICROSOFT_REDIRECT_URI='http://localhost:3000/auth/microsoft/callback'
+MICROSOFT_SCOPES='user.read,calendars.readwrite,offline_access,tasks.readwrite'
+
+# It is not a good practice to store secrets and client id in github, that is why the .env files are not in Github.
+# But I'm putting this data here to make it easier to run this project
+# Feel free to create your own application on Azure I will include steps below
+MICROSOFT_CLIENT_ID='5374e251-11a5-4d76-8669-adfb45bb807e'
+MICROSOFT_CLIENT_SECRET='hBJ8Q~c~t1qeXqMIJ.8uTrmz7JZnm3_3zQskfaSG'
 ```
 
 **Note**: It's a good practice not to commit `.env` files to version control. That is why .env files are in `.gitignore`.
