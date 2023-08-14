@@ -73,4 +73,14 @@ export class UserService {
     })
     return !!user
   }
+  static async setUserMicrosoftUserId(userId: string, microsoftUserId: string) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        microsoftUserId: microsoftUserId,
+      },
+    })
+  }
 }

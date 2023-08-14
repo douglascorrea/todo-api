@@ -527,6 +527,11 @@
             "type": "string",
             "format": "date-time",
             "description": "User creation date"
+          },
+          "microsoftUserId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Microsoft user ID associated with the User"
           }
         },
         "example": {
@@ -534,7 +539,8 @@
           "createdAt": "2023-08-12T00:18:22.241Z",
           "updatedAt": "2023-08-12T00:18:22.241Z",
           "email": "johndoe@example.com",
-          "name": "John Doe"
+          "name": "John Doe",
+          "microsoftUserId": "microsoft-user-id"
         }
       },
       "RequestBodyUser": {
@@ -586,14 +592,16 @@
               "createdAt": "2023-08-12T00:18:22.241Z",
               "updatedAt": "2023-08-12T00:18:22.241Z",
               "email": "johndoe@example.com",
-              "name": "John Doe"
+              "name": "John Doe",
+              "microsoftUserId": null
             },
             {
               "id": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
               "createdAt": "2023-08-12T00:18:22.241Z",
               "updatedAt": "2023-08-12T00:18:22.241Z",
               "email": "janesmith@example.com",
-              "name": "Jane Smith"
+              "name": "Jane Smith",
+              "microsoftUserId": "microsoft-user-id"
             }
           ]
         }

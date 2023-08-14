@@ -19,6 +19,7 @@ model User {
     email String @unique
     todos Todo[]
     todoLists TodoList[]
+    microsoftUserId String?
 }
 
 model Todo {
@@ -42,4 +43,12 @@ model TodoList {
     todos Todo[]
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
+}
+
+model ThirdPartyCacheStore {
+    id String @id @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    key String @unique
+    value String
 }
