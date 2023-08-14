@@ -15,7 +15,7 @@
     "test:integration:watch": "npm run migrate:postgres:test && dotenv -e .env.test -- jest -i --verbose --watch --testMatch='**/integration/**/*.test.ts' ; npm run docker:test:down",
     "test:integration:arguments": "npm run migrate:postgres:test && dotenv -e .env.test -- jest -i --verbose --testMatch='**/integration/**/*.test.ts'",
     "test:watch": "jest -i --watch",
-    "test:integration:coverage": "npm run migrate:postgres:test && dotenv -e .env.test -- jest -i --verbose --testMatch='**/integration/**/*.test.ts' --coverage ; npm run docker:test:down",
+    "test:integration:coverage": "npm run migrate:postgres:test && dotenv -e .env.test -- jest --coverage -i --verbose --testMatch='**/integration/**/*.test.ts' ; npm run docker:test:down",
     "build": "tsc",
     "dev": "npm run docker:dev:up && npm run migrate:postgres:dev && dotenv -e .env.development -- nodemon --exec ts-node src/index.ts"
   },
