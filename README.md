@@ -66,6 +66,8 @@ I've focused in integration tests since the application has a CRUD API and the b
 
 I've also set a `test:integration:coverage` script for getting coverage report which shows that the integration tests cover almost 100% of the code. **Check documentation for running the tests and coverage report**
 
+Currently are **101 tests** separated in *4 test suites* and covering **88.52%** of the code.
+
 #### Using express-validator for Request Validation
 
 I decided to use express-validator for Request Validation because it is easy to use and provide a good way to validate the request body, param and query parameters.
