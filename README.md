@@ -1,6 +1,6 @@
 # Todo API
 
-This project provides an API for managing todos and todo lists for users. It's built using Node.js, Express, Prisma, and PostgreSQL.
+This project provides an API for managing todos and todo lists for users. It's built using Typescript, Node.js, Express, Prisma, and PostgreSQL.
 
 ## Features as required
 
@@ -37,6 +37,9 @@ Bonus:
 ## Technical Decisions and Assumptions:
 
 ### Decisions
+
+### Using Typescript
+I've decided to use Typescript as requested and also because I'm more familiar with it. It provides a good way to have a typed code and also a good way to document the code. It also provides a good way to have a good IDE support.
 
 #### Using Prisma as ORM
 
