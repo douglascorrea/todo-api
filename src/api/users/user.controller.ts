@@ -8,8 +8,17 @@ export const createUser = async (req: Request, res: Response) => {
 }
 
 export const getAllUsers = async (req: Request, res: Response) => {
-  const users = await UserService.getAllUsers()
-  res.json(users)
+  const skip = req.query.skip ? parseInt(req.query.skip as string) : 0
+  const take = req.query.take ? parseInt(req.query.take as string) : 10
+  const order = req.query.order ? req.query.order : 'asc'
+  const users = await UserService.getAllUsers(skip, take, order as 'asc' | 'desc')
+  const data = {
+    skip,
+    take,
+    total: users.length,
+    results: users,
+  }
+  res.json(data)
 }
 
 export const getUserById = async (

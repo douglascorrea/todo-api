@@ -81,6 +81,9 @@ export const todoValidations = (method: string) => {
     case 'create':
       return create
     case 'update':
+    case 'complete':
+    case 'uncomplete':
+    case 'toggle':
       return update
     default:
       return []

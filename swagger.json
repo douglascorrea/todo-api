@@ -39,6 +39,17 @@
       },
       "get": {
         "summary": "Retrieve all users",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/skip"
+          },
+          {
+            "$ref": "#/components/parameters/take"
+          },
+          {
+            "$ref": "#/components/parameters/order"
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of users",
@@ -139,6 +150,15 @@
       "get": {
         "summary": "Retrieve all todo lists for a user",
         "parameters": [
+          {
+            "$ref": "#/components/parameters/skip"
+          },
+          {
+            "$ref": "#/components/parameters/take"
+          },
+          {
+            "$ref": "#/components/parameters/order"
+          },
           {
             "$ref": "#/components/parameters/userId"
           },
@@ -272,6 +292,15 @@
         "summary": "Retrieve all todos for a user",
         "parameters": [
           {
+            "$ref": "#/components/parameters/skip"
+          },
+          {
+            "$ref": "#/components/parameters/take"
+          },
+          {
+            "$ref": "#/components/parameters/order"
+          },
+          {
             "$ref": "#/components/parameters/userId"
           }
         ],
@@ -315,6 +344,16 @@
       },
       "put": {
         "summary": "Update a specific todo for a user",
+        "requestBody": {
+          "description": "Todo object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestBodyTodo"
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "$ref": "#/components/parameters/userId"
@@ -326,29 +365,6 @@
         "responses": {
           "200": {
             "description": "Todo updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Todo"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "summary": "Mark a specific todo as done for a user",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/userId"
-          },
-          {
-            "$ref": "#/components/parameters/todoId"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Todo marked as done successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -372,6 +388,81 @@
         "responses": {
           "204": {
             "description": "Todo deleted successfully"
+          }
+        }
+      }
+    },
+    "/users/{userId}/todos/{todoId}/complete": {
+      "patch": {
+        "summary": "Mark a todo as completed",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "#/components/parameters/todoId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Todo marked as complete successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/todos/{todoId}/uncomplete": {
+      "patch": {
+        "summary": "Mark a todo as uncompleted",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "#/components/parameters/todoId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Todo marked as uncomplete successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/todos/{todoId}/toggle": {
+      "patch": {
+        "summary": "Toggle a todo",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userId"
+          },
+          {
+            "$ref": "#/components/parameters/todoId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Todo toggled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Todo"
+                }
+              }
+            }
           }
         }
       }
@@ -464,26 +555,48 @@
         }
       },
       "ArrayOfUsers": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/User"
-        },
-        "example": [
-          {
-            "id": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
-            "createdAt": "2023-08-12T00:18:22.241Z",
-            "updatedAt": "2023-08-12T00:18:22.241Z",
-            "email": "johndoe@example.com",
-            "name": "John Doe"
+        "type": "object",
+        "properties": {
+          "skip": {
+            "type": "integer",
+            "description": "Number of items to skip"
           },
-          {
-            "id": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
-            "createdAt": "2023-08-12T00:18:22.241Z",
-            "updatedAt": "2023-08-12T00:18:22.241Z",
-            "email": "janesmith@example.com",
-            "name": "Jane Smith"
+          "take": {
+            "type": "integer",
+            "description": "Number of items to take"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
           }
-        ]
+        },
+        "example": {
+          "skip": 0,
+          "take": 10,
+          "total": 2,
+          "results": [
+            {
+              "id": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
+              "createdAt": "2023-08-12T00:18:22.241Z",
+              "updatedAt": "2023-08-12T00:18:22.241Z",
+              "email": "johndoe@example.com",
+              "name": "John Doe"
+            },
+            {
+              "id": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
+              "createdAt": "2023-08-12T00:18:22.241Z",
+              "updatedAt": "2023-08-12T00:18:22.241Z",
+              "email": "janesmith@example.com",
+              "name": "Jane Smith"
+            }
+          ]
+        }
       },
       "TodoList": {
         "type": "object",
@@ -540,27 +653,49 @@
         }
       },
       "ArrayOfTodoLists": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/TodoList"
-        },
-        "example": [
-          {
-            "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
-            "createdAt": "2023-08-12T11:45:56.872Z",
-            "updatedAt": "2023-08-12T11:45:56.872Z",
-            "title": "adassdas",
-            "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f"
+        "type": "object",
+        "properties": {
+          "skip": {
+            "type": "integer",
+            "description": "Number of items to skip"
           },
-          {
-            "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
-            "createdAt": "2023-08-12T11:45:56.872Z",
-            "updatedAt": "2023-08-12T11:45:56.872Z",
-            "title": "adassdas",
-            "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
-            "todos": []
+          "take": {
+            "type": "integer",
+            "description": "Number of items to take"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TodoList"
+            }
           }
-        ]
+        },
+        "example": {
+          "skip": 0,
+          "take": 10,
+          "total": 2,
+          "results": [
+            {
+              "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
+              "createdAt": "2023-08-12T11:45:56.872Z",
+              "updatedAt": "2023-08-12T11:45:56.872Z",
+              "title": "adassdas",
+              "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f"
+            },
+            {
+              "id": "ea6c87fc-a400-4fbc-92bb-be18f488e726",
+              "createdAt": "2023-08-12T11:45:56.872Z",
+              "updatedAt": "2023-08-12T11:45:56.872Z",
+              "title": "adassdas",
+              "userId": "05aef8f6-8a54-44ce-ab7d-87e67ea9ad2f",
+              "todos": []
+            }
+          ]
+        }
       },
       "Todo": {
         "type": "object",
@@ -668,12 +803,32 @@
         }
       },
       "ArrayOfTodos": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/Todo"
+        "type": "object",
+        "properties": {
+          "skip": {
+            "type": "integer",
+            "description": "Number of items to skip"
+          },
+          "take": {
+            "type": "integer",
+            "description": "Number of items to take"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Todo"
+            }
+          }
         },
-        "example": [
-          [
+        "example": {
+          "skip": 0,
+          "take": 10,
+          "total": 2,
+          "results": [
             {
               "id": "4c2e0777-c652-4dac-8473-9c6f873f8137",
               "createdAt": "2023-08-12T23:56:01.728Z",
@@ -748,10 +903,40 @@
               }
             }
           ]
-        ]
+        }
       }
     },
     "parameters": {
+      "skip": {
+        "name": "skip",
+        "in": "query",
+        "required": false,
+        "description": "Number of items to skip",
+        "schema": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "take": {
+        "name": "take",
+        "in": "query",
+        "required": false,
+        "description": "Number of items to take",
+        "schema": {
+          "type": "integer",
+          "default": 10
+        }
+      },
+      "order": {
+        "name": "order",
+        "in": "query",
+        "required": false,
+        "description": "Order of items",
+        "schema": {
+          "type": "string",
+          "default": "asc"
+        }
+      },
       "userId": {
         "name": "userId",
         "in": "path",

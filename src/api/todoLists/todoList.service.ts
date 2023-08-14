@@ -1,14 +1,31 @@
 import prisma from '../../config/database'
 
 export class TodoListService {
-  static async getAllUserTodoLists(userId: string, withTodos = false) {
+  static async getAllUserTodoLists(
+    userId: string,
+    withTodos = false,
+    skip = 0,
+    take = 10,
+    orderBy: 'asc' | 'desc' = 'asc'
+  ) {
     return prisma.todoList.findMany({
+      skip,
+      take,
       where: {
         userId,
       },
       include: {
         todos: withTodos,
       },
+      orderBy: [
+        {
+          createdAt: orderBy,
+        },
+        // to unbbias the sorting, we add a secondary sort by uuid
+        {
+          id: orderBy,
+        },
+      ],
     })
   }
 

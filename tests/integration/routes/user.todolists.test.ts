@@ -217,8 +217,12 @@ describe(`User's todoLists Routes`, () => {
         )
         expect(res.statusCode).toEqual(200)
         expect(res).toSatisfyApiSpec()
-        expect(res.body.length).toBe(3)
-        res.body.forEach((todoList: TodoList) => {
+
+        expect(res.body.total).toEqual(3)
+        expect(res.body.skip).toEqual(0)
+        expect(res.body.take).toEqual(10)
+        expect(res.body.results.length).toEqual(3)
+        res.body.results.forEach((todoList: TodoList) => {
           expect(todoList).toSatisfySchemaInApiSpec('TodoList')
           const match = createdTodoLists.find(
             (createdTodoList) => createdTodoList.id === todoList.id
@@ -237,8 +241,11 @@ describe(`User's todoLists Routes`, () => {
         )
         expect(res.statusCode).toEqual(200)
         expect(res).toSatisfyApiSpec()
-        expect(res.body.length).toBe(3)
-        res.body.forEach(async (todoList: TodoListWithTodos) => {
+        expect(res.body.total).toEqual(3)
+        expect(res.body.skip).toEqual(0)
+        expect(res.body.take).toEqual(10)
+        expect(res.body.results.length).toEqual(3)
+        res.body.results.forEach(async (todoList: TodoListWithTodos) => {
           expect(todoList).toSatisfySchemaInApiSpec('TodoList')
           const match = createdTodoLists.find(
             (createdTodoList) => createdTodoList.id === todoList.id
@@ -259,6 +266,165 @@ describe(`User's todoLists Routes`, () => {
             expect(todoList.todos.length).toEqual(matchWithTodos?.todos.length)
           }
         })
+      })
+    })
+    describe('GET /users/{userId}/todoLists with pagination', () => {
+      let createdUserForGetAllTodoLists: User
+      let createdTodoListsForGetAll: TodoList[]
+      const listOfTwentyTodoListsForGetAll = Array.from(
+        { length: 20 },
+        (_, i) => ({
+          title: `My TodoList ${i + 1}`,
+        })
+      )
+      const defaultSkip = 0
+      const defaultTake = 10
+      const defaultOrder = 'asc'
+
+      beforeAll(async () => {
+        createdUserForGetAllTodoLists = await UserService.createUser(
+          'User for getAll TodoLists',
+          'userforgetalltodolists1@example.com'
+        )
+        createdTodoListsForGetAll = await Promise.all(
+          listOfTwentyTodoListsForGetAll.map(async (todoList) => {
+            const createdTodoList = await TodoListService.createUserTodoList(
+              createdUserForGetAllTodoLists.id,
+              todoList.title
+            )
+            return createdTodoList
+          })
+        )
+      })
+      afterAll(async () => {
+        // it will cascade delete all todos and todoLists
+        await UserService.deleteUser(createdUserForGetAllTodoLists.id)
+      })
+      it('should return all TodoLists for a user and match OpenAPI spec with pagination first page', async () => {
+        const firstTenTodoLists = await TodoListService.getAllUserTodoLists(
+          createdUserForGetAllTodoLists.id,
+          false,
+          defaultSkip,
+          defaultTake,
+          defaultOrder
+        )
+        const res = await request(app).get(
+          `/api/users/${createdUserForGetAllTodoLists.id}/todoLists`
+        )
+        expect(res.statusCode).toEqual(200)
+        expect(res).toSatisfyApiSpec()
+        expect(res.body.total).toEqual(defaultTake)
+        expect(res.body.skip).toEqual(defaultSkip)
+        expect(res.body.take).toEqual(defaultTake)
+        expect(res.body.results.length).toEqual(10)
+        expect(res.body.results[0]).toSatisfySchemaInApiSpec('TodoList')
+        expect(res.body.results[0].createdAt).toEqual(
+          firstTenTodoLists[0].createdAt.toISOString()
+        )
+        expect(res.body.results[0].id).toEqual(firstTenTodoLists[0].id)
+        expect(res.body.results[0].title).toEqual(firstTenTodoLists[0].title)
+      })
+
+      it('should return all TodoLists for a user and match OpenAPI spec with pagination second page', async () => {
+      const skip = 10
+      const take = 10
+        const secondTenTodoLists = await TodoListService.getAllUserTodoLists(
+          createdUserForGetAllTodoLists.id,
+          false,
+          skip,
+          take,
+          defaultOrder
+        )
+        const res = await request(app).get(
+          `/api/users/${createdUserForGetAllTodoLists.id}/todoLists?skip=${skip}&take=${take}`
+        )
+        expect(res.statusCode).toEqual(200)
+        expect(res).toSatisfyApiSpec()
+        expect(res.body.total).toEqual(take)
+        expect(res.body.skip).toEqual(skip)
+        expect(res.body.take).toEqual(take)
+        expect(res.body.results.length).toEqual(10)
+        expect(res.body.results[0]).toSatisfySchemaInApiSpec('TodoList')
+        expect(res.body.results[0].createdAt).toEqual(
+          secondTenTodoLists[0].createdAt.toISOString()
+        )
+        expect(res.body.results[0].id).toEqual(secondTenTodoLists[0].id)
+        expect(res.body.results[0].title).toEqual(secondTenTodoLists[0].title)
+      })
+
+      it('should return all TodoLists for a user and match OpenAPI spec with pagination first page descending', async () => {
+        const firstTenTodoLists = await TodoListService.getAllUserTodoLists(
+          createdUserForGetAllTodoLists.id,
+          false,
+          defaultSkip,
+          defaultTake,
+          'desc'
+        )
+        const res = await request(app).get(
+          `/api/users/${createdUserForGetAllTodoLists.id}/todoLists?order=desc`
+        )
+        expect(res.statusCode).toEqual(200)
+        expect(res).toSatisfyApiSpec()
+        expect(res.body.total).toEqual(defaultTake)
+        expect(res.body.skip).toEqual(defaultSkip)
+        expect(res.body.take).toEqual(defaultTake)
+        expect(res.body.results.length).toEqual(10)
+        expect(res.body.results[0]).toSatisfySchemaInApiSpec('TodoList')
+        expect(res.body.results[0].createdAt).toEqual(
+          firstTenTodoLists[0].createdAt.toISOString()
+        )
+        expect(res.body.results[0].id).toEqual(firstTenTodoLists[0].id)
+        expect(res.body.results[0].title).toEqual(firstTenTodoLists[0].title)
+      })
+      it('should return all TodoLists for a user and match OpenAPI spec with pagination second page descending', async () => {
+      const skip = 10
+      const take = 10
+        const secondTenTodoLists = await TodoListService.getAllUserTodoLists(
+          createdUserForGetAllTodoLists.id,
+          false,
+          skip,
+          take,
+          'desc'
+        )
+        const res = await request(app).get(
+          `/api/users/${createdUserForGetAllTodoLists.id}/todoLists?skip=${skip}&take=${take}&order=desc`
+        )
+        expect(res.statusCode).toEqual(200)
+        expect(res).toSatisfyApiSpec()
+        expect(res.body.total).toEqual(take)
+        expect(res.body.skip).toEqual(skip)
+        expect(res.body.take).toEqual(take)
+        expect(res.body.results.length).toEqual(take)
+        expect(res.body.results[0]).toSatisfySchemaInApiSpec('TodoList')
+        expect(res.body.results[0].createdAt).toEqual(
+          secondTenTodoLists[0].createdAt.toISOString()
+        )
+        expect(res.body.results[0].id).toEqual(secondTenTodoLists[0].id)
+        expect(res.body.results[0].title).toEqual(secondTenTodoLists[0].title)
+      })
+      it('should return all TodoLists for a user and match OpenAPI spec with pagination first of 5 ascending', async () => {
+        const firstFiveTodoLists = await TodoListService.getAllUserTodoLists(
+          createdUserForGetAllTodoLists.id,
+          false,
+          defaultSkip,
+          5,
+          defaultOrder
+        )
+        const res = await request(app).get(
+          `/api/users/${createdUserForGetAllTodoLists.id}/todoLists?take=5`
+        )
+        expect(res.statusCode).toEqual(200)
+        expect(res).toSatisfyApiSpec()
+        expect(res.body.total).toEqual(5)
+        expect(res.body.skip).toEqual(defaultSkip)
+        expect(res.body.take).toEqual(5)
+        expect(res.body.results.length).toEqual(5)
+        expect(res.body.results[0]).toSatisfySchemaInApiSpec('TodoList')
+        expect(res.body.results[0].createdAt).toEqual(
+          firstFiveTodoLists[0].createdAt.toISOString()
+        )
+        expect(res.body.results[0].id).toEqual(firstFiveTodoLists[0].id)
+        expect(res.body.results[0].title).toEqual(firstFiveTodoLists[0].title)
       })
     })
     describe('GET /users/{userId}/todoLists/{todoListId}', () => {

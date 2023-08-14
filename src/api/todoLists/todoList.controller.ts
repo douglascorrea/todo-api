@@ -11,11 +11,24 @@ export const createUserTodoList = async (req: Request, res: Response) => {
 
 export const getAllUserTodoLists = async (req: Request, res: Response) => {
   const includeTodos = req.query.includeTodos === 'true'
+  const skip = req.query.skip ? parseInt(req.query.skip as string) : 0
+  const take = req.query.take ? parseInt(req.query.take as string) : 10
+  const order = req.query.order ? req.query.order : 'asc'
   const todoLists = await TodoListService.getAllUserTodoLists(
     req.params.userId,
-    includeTodos
+    includeTodos,
+    skip,
+    take,
+    order as 'asc' | 'desc'
   )
-  res.json(todoLists)
+
+  const data = {
+    skip,
+    take,
+    total: todoLists.length,
+    results: todoLists,
+  }
+  res.json(data)
 }
 
 export const getUserTodoListById = async (req: Request, res: Response) => {

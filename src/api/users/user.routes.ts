@@ -77,5 +77,21 @@ router.delete(
     validate(...todoValidations('delete')),
     asyncHandler(TodoController.deleteUserTodoById)
 )
+router.patch(
+    '/:userId/todos/:todoId/complete',
+    validate(...todoValidations('complete')),
+    asyncHandler(TodoController.completeUserTodoById)
+)
+router.patch(
+    '/:userId/todos/:todoId/uncomplete',
+    validate(...todoValidations('uncomplete')),
+    asyncHandler(TodoController.uncompleteUserTodoById)
+)
+router.patch(
+    '/:userId/todos/:todoId/toggle',
+    validate(...todoValidations('toggle')),
+    asyncHandler(TodoController.toggleUserTodoById)
+)
+
 
 export default router

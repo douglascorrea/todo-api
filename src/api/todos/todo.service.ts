@@ -17,8 +17,16 @@ export class TodoService {
     })
   }
 
-  static async getAllUserTodos(userId: string, completed?: boolean) {
+  static async getAllUserTodos(
+    userId: string,
+    completed?: boolean,
+    skip = 0,
+    take = 10,
+    orderBy: 'asc' | 'desc' = 'asc'
+  ) {
     return prisma.todo.findMany({
+      skip,
+      take,
       where: {
         userId,
         completed,
@@ -26,6 +34,15 @@ export class TodoService {
       include: {
         todoList: true,
       },
+      orderBy: [
+        {
+          createdAt: orderBy,
+        },
+        // to unbbias the sorting, we add a secondary sort by uuid
+        {
+          id: orderBy,
+        },
+      ],
     })
   }
 

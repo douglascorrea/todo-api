@@ -10,8 +10,24 @@ export class UserService {
     })
   }
 
-  static async getAllUsers() {
-    return prisma.user.findMany()
+  static async getAllUsers(
+    skip: number,
+    take: number,
+    orderBy: 'asc' | 'desc' = 'asc'
+  ) {
+    return prisma.user.findMany({
+      skip: skip,
+      take: take,
+      orderBy: [
+        {
+          createdAt: orderBy,
+        },
+        // to unbbias the sorting, we add a secondary sort by uuid
+        {
+          id: orderBy,
+        },
+      ],
+    })
   }
 
   static async getUserById(userId: string) {

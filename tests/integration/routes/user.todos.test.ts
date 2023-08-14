@@ -262,7 +262,11 @@ describe(`User's Todo Routes`, () => {
       const res = await request(app).get(`/api/users/${createdUser.id}/todos`)
       expect(res.statusCode).toEqual(200)
       expect(res).toSatisfyApiSpec()
-      expect(res.body).toEqual([])
+      expect(res.body.total).toEqual(0)
+      expect(res.body.skip).toEqual(0)
+      expect(res.body.take).toEqual(10)
+      expect(res.body.results.length).toEqual(0)
+      expect(res.body.results).toEqual([])
     })
 
     it('should return 200 and todos if user has todos', async () => {
@@ -299,8 +303,11 @@ describe(`User's Todo Routes`, () => {
       const res = await request(app).get(`/api/users/${createdUser.id}/todos`)
       expect(res.statusCode).toEqual(200)
       expect(res).toSatisfyApiSpec()
-      expect(res.body.length).toEqual(2)
-      res.body.forEach((todo: TodoWithTodoLists) => {
+      expect(res.body.total).toEqual(2)
+      expect(res.body.skip).toEqual(0)
+      expect(res.body.take).toEqual(10)
+      expect(res.body.results.length).toEqual(2)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
         expect(todo).toSatisfySchemaInApiSpec('Todo')
         const match = createdTodos.find((t) => t.id === todo.id)
         expect(match).not.toBeNull()
@@ -380,8 +387,11 @@ describe(`User's Todo Routes`, () => {
       )
       expect(res.statusCode).toEqual(200)
       expect(res).toSatisfyApiSpec()
-      expect(res.body.length).toEqual(2)
-      res.body.forEach((todo: TodoWithTodoLists) => {
+      expect(res.body.total).toEqual(2)
+      expect(res.body.skip).toEqual(0)
+      expect(res.body.take).toEqual(10)
+      expect(res.body.results.length).toEqual(2)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
         expect(todo).toSatisfySchemaInApiSpec('Todo')
         const match = createdCompletedTodos.find((t) => t.id === todo.id)
         expect(match).not.toBeNull()
@@ -399,8 +409,11 @@ describe(`User's Todo Routes`, () => {
       )
       expect(res2.statusCode).toEqual(200)
       expect(res2).toSatisfyApiSpec()
-      expect(res2.body.length).toEqual(2)
-      res2.body.forEach((todo: TodoWithTodoLists) => {
+      expect(res2.body.total).toEqual(2)
+      expect(res2.body.skip).toEqual(0)
+      expect(res2.body.take).toEqual(10)
+      expect(res2.body.results.length).toEqual(2)
+      res2.body.results.forEach((todo: TodoWithTodoLists) => {
         expect(todo).toSatisfySchemaInApiSpec('Todo')
         const match = createdUncompletedTodos.find((t) => t.id === todo.id)
         expect(match).not.toBeNull()
@@ -416,8 +429,11 @@ describe(`User's Todo Routes`, () => {
       const res3 = await request(app).get(`/api/users/${createdUser.id}/todos`)
       expect(res3.statusCode).toEqual(200)
       expect(res3).toSatisfyApiSpec()
-      expect(res3.body.length).toEqual(4)
-      res3.body.forEach((todo: TodoWithTodoLists) => {
+      expect(res3.body.total).toEqual(4)
+      expect(res3.body.skip).toEqual(0)
+      expect(res3.body.take).toEqual(10)
+      expect(res3.body.results.length).toEqual(4)
+      res3.body.results.forEach((todo: TodoWithTodoLists) => {
         expect(todo).toSatisfySchemaInApiSpec('Todo')
         const match = [
           ...createdUncompletedTodos,
@@ -446,6 +462,197 @@ describe(`User's Todo Routes`, () => {
     it('should fail if user does not exist', async () => {
       const res = await request(app).get(`/api/users/123/todos`)
       expect(res.statusCode).toEqual(404)
+    })
+  })
+  describe('GET /api/users/:userId/todos with pagination', () => {
+    let createdUserForGetAllTodos: User
+    let createdTodosForGetAllTodos: Todo[]
+
+    const defaultSkip = 0
+    const defaultTake = 10
+    const defaultOrder = 'asc'
+
+    const listOfTwentyTodosForGetAll = Array.from(
+      { length: 20 },
+      (_, i) => i + 1
+    ).map((i) => ({
+      title: `New Todo ${i}`,
+      description: `New Todo Description ${i}`,
+    }))
+    beforeAll(async () => {
+      createdUserForGetAllTodos = await UserService.createUser(
+        'User for Get All Todos',
+        'userforgetalltodos99@example.com'
+      )
+      createdTodosForGetAllTodos = await Promise.all(
+        listOfTwentyTodosForGetAll.map((todo) => {
+          const createdTodoForAll = TodoService.createUserTodo(
+            createdUserForGetAllTodos.id,
+            todo.title,
+            todo.description
+          )
+          return createdTodoForAll
+        })
+      )
+    })
+    afterAll(async () => {
+      //it will cascade delete all todos and todoslists
+      await UserService.deleteUser(createdUserForGetAllTodos.id)
+    })
+    it('should return all todos for a user and match OpenAPI spec with pagination first page', async () => {
+      const firstTenTodos = await TodoService.getAllUserTodos(
+        createdUserForGetAllTodos.id,
+        undefined,
+        defaultSkip,
+        defaultTake,
+        defaultOrder
+      )
+      const res = await request(app).get(
+        `/api/users/${createdUserForGetAllTodos.id}/todos`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(defaultTake)
+      expect(res.body.skip).toEqual(defaultSkip)
+      expect(res.body.take).toEqual(defaultTake)
+      expect(res.body.results.length).toEqual(defaultTake)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
+        expect(todo).toSatisfySchemaInApiSpec('Todo')
+        const match = firstTenTodos.find((t) => t.id === todo.id)
+        expect(match).not.toBeNull()
+        expect(todo.id).toEqual(match?.id)
+        expect(todo.title).toEqual(match?.title)
+        expect(todo.description).toEqual(match?.description)
+        expect(todo.todoListId).toEqual(match?.todoListId)
+        expect(todo.completed).toEqual(match?.completed)
+        expect(todo.createdAt).toEqual(match?.createdAt.toISOString())
+        expect(todo.updatedAt).toEqual(match?.updatedAt.toISOString())
+      })
+    })
+    it('should return all todos for a user and match OpenAPI spec with pagination second page', async () => {
+      const skip = 10
+      const take = 10
+      const secondTenTodos = await TodoService.getAllUserTodos(
+        createdUserForGetAllTodos.id,
+        undefined,
+        skip,
+        take,
+        defaultOrder
+      )
+      const res = await request(app).get(
+        `/api/users/${createdUserForGetAllTodos.id}/todos?skip=${skip}&take=${take}`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(take)
+      expect(res.body.skip).toEqual(skip)
+      expect(res.body.take).toEqual(take)
+      expect(res.body.results.length).toEqual(take)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
+        expect(todo).toSatisfySchemaInApiSpec('Todo')
+        const match = secondTenTodos.find((t) => t.id === todo.id)
+        expect(match).not.toBeNull()
+        expect(todo.id).toEqual(match?.id)
+        expect(todo.title).toEqual(match?.title)
+        expect(todo.description).toEqual(match?.description)
+        expect(todo.todoListId).toEqual(match?.todoListId)
+        expect(todo.completed).toEqual(match?.completed)
+        expect(todo.createdAt).toEqual(match?.createdAt.toISOString())
+        expect(todo.updatedAt).toEqual(match?.updatedAt.toISOString())
+      })
+    })
+
+    it('should return all todos for a user and match OpenAPI spec with pagination first page descending', async () => {
+      const firstTenTodos = await TodoService.getAllUserTodos(
+        createdUserForGetAllTodos.id,
+        undefined,
+        defaultSkip,
+        defaultTake,
+        'desc'
+      )
+      const res = await request(app).get(
+        `/api/users/${createdUserForGetAllTodos.id}/todos?order=desc`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(defaultTake)
+      expect(res.body.skip).toEqual(defaultSkip)
+      expect(res.body.take).toEqual(defaultTake)
+      expect(res.body.results.length).toEqual(defaultTake)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
+        expect(todo).toSatisfySchemaInApiSpec('Todo')
+        const match = firstTenTodos.find((t) => t.id === todo.id)
+        expect(match).not.toBeNull()
+        expect(todo.id).toEqual(match?.id)
+        expect(todo.title).toEqual(match?.title)
+        expect(todo.description).toEqual(match?.description)
+        expect(todo.todoListId).toEqual(match?.todoListId)
+        expect(todo.completed).toEqual(match?.completed)
+        expect(todo.createdAt).toEqual(match?.createdAt.toISOString())
+        expect(todo.updatedAt).toEqual(match?.updatedAt.toISOString())
+      })
+    })
+    it('should return all todos for a user and match OpenAPI spec with pagination second page descending', async () => {
+      const skip = 10
+      const take = 10
+      const secondTenTodos = await TodoService.getAllUserTodos(
+        createdUserForGetAllTodos.id,
+        undefined,
+        skip,
+        take,
+        'desc'
+      )
+      const res = await request(app).get(
+        `/api/users/${createdUserForGetAllTodos.id}/todos?skip=${skip}&take=${take}&order=desc`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(take)
+      expect(res.body.skip).toEqual(skip)
+      expect(res.body.take).toEqual(take)
+      expect(res.body.results.length).toEqual(take)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
+        expect(todo).toSatisfySchemaInApiSpec('Todo')
+        const match = secondTenTodos.find((t) => t.id === todo.id)
+        expect(match).not.toBeNull()
+        expect(todo.id).toEqual(match?.id)
+        expect(todo.title).toEqual(match?.title)
+        expect(todo.description).toEqual(match?.description)
+        expect(todo.todoListId).toEqual(match?.todoListId)
+        expect(todo.completed).toEqual(match?.completed)
+        expect(todo.createdAt).toEqual(match?.createdAt.toISOString())
+        expect(todo.updatedAt).toEqual(match?.updatedAt.toISOString())
+      })
+    })
+    it('should return all todos for a user and match OpenAPI spec with pagination first of 5 ascending', async () => {
+      const firstTenTodos = await TodoService.getAllUserTodos(
+        createdUserForGetAllTodos.id,
+        undefined,
+        defaultSkip,
+        5,
+        defaultOrder
+      )
+      const res = await request(app).get(
+        `/api/users/${createdUserForGetAllTodos.id}/todos?take=5`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(5)
+      expect(res.body.skip).toEqual(defaultSkip)
+      expect(res.body.take).toEqual(5)
+      expect(res.body.results.length).toEqual(5)
+      res.body.results.forEach((todo: TodoWithTodoLists) => {
+        expect(todo).toSatisfySchemaInApiSpec('Todo')
+        const match = firstTenTodos.find((t) => t.id === todo.id)
+        expect(match).not.toBeNull()
+        expect(todo.id).toEqual(match?.id)
+        expect(todo.title).toEqual(match?.title)
+        expect(todo.description).toEqual(match?.description)
+        expect(todo.todoListId).toEqual(match?.todoListId)
+        expect(todo.completed).toEqual(match?.completed)
+        expect(todo.createdAt).toEqual(match?.createdAt.toISOString())
+        expect(todo.updatedAt).toEqual(match?.updatedAt.toISOString())
+      })
     })
   })
   describe('GET /api/users/:userId/todos/:todoId', () => {
@@ -933,6 +1140,159 @@ describe(`User's Todo Routes`, () => {
       )
       const res = await request(app).delete(
         `/api/users/${createdUserTwo.id}/todos/${createdTodo.id}`
+      )
+      // it fails with 404 since there is no auth middleware
+      expect(res.statusCode).toEqual(404)
+      // Clean up todo after test
+      await TodoService.deleteUserTodoById(createdUser.id, createdTodo.id)
+      await UserService.deleteUser(createdUserTwo.id)
+    })
+  })
+
+  describe('PATCH /api/users/:userId/todos/:todoId/complete', () => {
+    it('should mark todo as done', async () => {
+      const createdTodo = await TodoService.createUserTodo(
+        createdUser.id,
+        'New Todo',
+        'New Todo Description'
+      )
+      const res = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/${createdTodo.id}/complete`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res.body).toSatisfySchemaInApiSpec('Todo')
+      expect(res.body.id).toEqual(createdTodo.id)
+      expect(res.body.completed).toEqual(true)
+      // Clean up todo after test
+      await TodoService.deleteUserTodoById(createdUser.id, createdTodo.id)
+    })
+    it('should fail if user does not exist', async () => {
+      const res = await request(app).patch(`/api/users/123/todos/123/complete`)
+      expect(res.statusCode).toEqual(404)
+    })
+    it('should fail if todo does not exist', async () => {
+      const res = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/123/complete`
+      )
+      expect(res.statusCode).toEqual(404)
+    })
+    it('should fail if user is not owner of todo', async () => {
+      const createdUserTwo = await UserService.createUser(
+        'Another User todo',
+        'anotheruserforcompleteodo@example.com'
+      )
+      const createdTodo = await TodoService.createUserTodo(
+        createdUser.id,
+        'New Todo',
+        'New Todo Description'
+      )
+      const res = await request(app).patch(
+        `/api/users/${createdUserTwo.id}/todos/${createdTodo.id}/complete`
+      )
+      // it fails with 404 since there is no auth middleware
+      expect(res.statusCode).toEqual(404)
+      // Clean up todo after test
+      await TodoService.deleteUserTodoById(createdUser.id, createdTodo.id)
+      await UserService.deleteUser(createdUserTwo.id)
+    })
+  })
+
+  describe('PATCH /api/users/:userId/todos/:todoId/uncomplete', () => {
+    it('should mark todo as not complete', async () => {
+      const createdTodo = await TodoService.createUserTodo(
+        createdUser.id,
+        'New Todo',
+        'New Todo Description'
+      )
+      const res = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/${createdTodo.id}/uncomplete`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res.body).toSatisfySchemaInApiSpec('Todo')
+      expect(res.body.id).toEqual(createdTodo.id)
+      expect(res.body.completed).toEqual(false)
+      // Clean up todo after test
+      await TodoService.deleteUserTodoById(createdUser.id, createdTodo.id)
+    })
+    it('should fail if user does not exist', async () => {
+      const res = await request(app).patch(
+        `/api/users/123/todos/123/uncomplete`
+      )
+      expect(res.statusCode).toEqual(404)
+    })
+    it('should fail if todo does not exist', async () => {
+      const res = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/123/uncomplete`
+      )
+      expect(res.statusCode).toEqual(404)
+    })
+    it('should fail if user is not owner of todo', async () => {
+      const createdUserTwo = await UserService.createUser(
+        'Another User todo',
+        'anotheruserforuncompleteodo@example.com'
+      )
+      const createdTodo = await TodoService.createUserTodo(
+        createdUser.id,
+        'New Todo',
+        'New Todo Description'
+      )
+      const res = await request(app).patch(
+        `/api/users/${createdUserTwo.id}/todos/${createdTodo.id}/uncomplete`
+      )
+      // it fails with 404 since there is no auth middleware
+      expect(res.statusCode).toEqual(404)
+      // Clean up todo after test
+      await TodoService.deleteUserTodoById(createdUser.id, createdTodo.id)
+      await UserService.deleteUser(createdUserTwo.id)
+    })
+  })
+
+  describe('PATCH /api/users/:userId/todos/:todoId/toggle', () => {
+    it('should mark toggle todo', async () => {
+      const createdTodo = await TodoService.createUserTodo(
+        createdUser.id,
+        'New Todo',
+        'New Todo Description'
+      )
+      const res = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/${createdTodo.id}/toggle`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res.body).toSatisfySchemaInApiSpec('Todo')
+      expect(res.body.id).toEqual(createdTodo.id)
+      expect(res.body.completed).toEqual(true)
+      const res2 = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/${createdTodo.id}/toggle`
+      )
+      expect(res2.statusCode).toEqual(200)
+      expect(res2.body).toSatisfySchemaInApiSpec('Todo')
+      expect(res2.body.id).toEqual(createdTodo.id)
+      expect(res2.body.completed).toEqual(false)
+      // Clean up todo after test
+      await TodoService.deleteUserTodoById(createdUser.id, createdTodo.id)
+    })
+    it('should fail if user does not exist', async () => {
+      const res = await request(app).patch(`/api/users/123/todos/123/toggle`)
+      expect(res.statusCode).toEqual(404)
+    })
+    it('should fail if todo does not exist', async () => {
+      const res = await request(app).patch(
+        `/api/users/${createdUser.id}/todos/123/toggle`
+      )
+      expect(res.statusCode).toEqual(404)
+    })
+    it('should fail if user is not owner of todo', async () => {
+      const createdUserTwo = await UserService.createUser(
+        'Another User todo',
+        'anotheruserfortoggleodo@example.com'
+      )
+      const createdTodo = await TodoService.createUserTodo(
+        createdUser.id,
+        'New Todo',
+        'New Todo Description'
+      )
+      const res = await request(app).patch(
+        `/api/users/${createdUserTwo.id}/todos/${createdTodo.id}/toggle`
       )
       // it fails with 404 since there is no auth middleware
       expect(res.statusCode).toEqual(404)

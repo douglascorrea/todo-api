@@ -63,10 +63,123 @@ describe('User Routes', () => {
   })
 
   describe('GET /users', () => {
-    it('should return a list of users and match OpenAPI spec', async () => {
+    let createdTwentyUsers: User[]
+    const twentyUsers = Array.from(Array(20).keys()).map((i) => ({
+      name: `User ${i}`,
+      email: `useremail${i}forgetall@example.com`,
+    }))
+
+    const defaultSkip = 0
+    const defaultTake = 10
+    const defaultOrder = 'asc'
+
+    beforeAll(async () => {
+      createdTwentyUsers = await Promise.all(
+        twentyUsers.map((user) => UserService.createUser(user.name, user.email))
+      )
+    })
+    afterAll(async () => {
+      await Promise.all(
+        createdTwentyUsers.map((user) => UserService.deleteUser(user.id))
+      )
+    })
+
+    it('should return a list of users and match OpenAPI spec first page', async () => {
+      const firstTenUsersFromDb = await UserService.getAllUsers(
+        defaultSkip,
+        defaultTake,
+        defaultOrder
+      )
       const res = await request(app).get('/api/users')
       expect(res.statusCode).toEqual(200)
       expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(defaultTake)
+      expect(res.body.skip).toEqual(defaultSkip)
+      expect(res.body.take).toEqual(defaultTake)
+      expect(res.body.results.length).toEqual(10)
+      expect(res.body.results[0]).toSatisfySchemaInApiSpec('User')
+      expect(res.body.results[0].createdAt).toEqual(
+        firstTenUsersFromDb[0].createdAt.toISOString()
+      )
+    })
+
+    it('should return a list of users and match OpenAPI spec second page', async () => {
+      const skip = 10
+      const take = 10
+      const secondTenUsersFromDb = await UserService.getAllUsers(
+        skip,
+        take,
+        defaultOrder
+      )
+      const res = await request(app).get(`/api/users?skip=${skip}&take=${take}`)
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(take)
+      expect(res.body.skip).toEqual(skip)
+      expect(res.body.take).toEqual(take)
+      expect(res.body.results.length).toEqual(10)
+      expect(res.body.results[0]).toSatisfySchemaInApiSpec('User')
+      expect(res.body.results[0].createdAt).toEqual(
+        secondTenUsersFromDb[0].createdAt.toISOString()
+      )
+    })
+    it('should return a list of users and match OpenAPI spec first page descending', async () => {
+      const firstTenUsersFromDb = await UserService.getAllUsers(
+        defaultSkip,
+        defaultTake,
+        'desc'
+      )
+      const res = await request(app).get('/api/users?order=desc')
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(defaultTake)
+      expect(res.body.skip).toEqual(defaultSkip)
+      expect(res.body.take).toEqual(defaultTake)
+      expect(res.body.results.length).toEqual(10)
+      expect(res.body.results[0]).toSatisfySchemaInApiSpec('User')
+      expect(res.body.results[0].createdAt).toEqual(
+        firstTenUsersFromDb[0].createdAt.toISOString()
+      )
+    })
+    it('should return a list of users and match OpenAPI spec second page descending', async () => {
+      const skip = 10
+      const take = 10
+      const secondTenUsersFromDb = await UserService.getAllUsers(
+        skip,
+        take,
+        'desc'
+      )
+      const res = await request(app).get(
+        `/api/users?skip=${skip}&take=${take}&order=desc`
+      )
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(take)
+      expect(res.body.skip).toEqual(skip)
+      expect(res.body.take).toEqual(take)
+      expect(res.body.results.length).toEqual(10)
+      expect(res.body.results[0]).toSatisfySchemaInApiSpec('User')
+      expect(res.body.results[0].createdAt).toEqual(
+        secondTenUsersFromDb[0].createdAt.toISOString()
+      )
+    })
+    it('should return a list of users and match OpenAPI spec first page of 5 ascending', async () => {
+      const firstFiveUsersFromDb = await UserService.getAllUsers(
+        defaultSkip,
+        5,
+        defaultOrder
+      )
+      const res = await request(app).get('/api/users?take=5')
+      expect(res.statusCode).toEqual(200)
+      expect(res).toSatisfyApiSpec()
+      expect(res.body.total).toEqual(5)
+      expect(res.body.skip).toEqual(defaultSkip)
+      expect(res.body.take).toEqual(5)
+      expect(res.body.results.length).toEqual(5)
+      expect(res.body.results[0]).toSatisfySchemaInApiSpec('User')
+      expect(res.body.results[0].createdAt).toEqual(
+        firstFiveUsersFromDb[0].createdAt.toISOString()
+      )
     })
   })
 
