@@ -109,9 +109,23 @@ As asked by email, I didn't implemented authentication for this project. So, all
 ## Prerequisites to Run this Project
 
 - Node.js (The app run in local NodeJS environment) - v16+
+    - You can use **Homebrew** to install NodeJS on Mac or **nvm** to manage multiple NodeJS versions
 - Docker and Docker Compose (the DB run in Docker container)
 
 ## How to Setup
+
+### Clone this project
+
+```bash
+git clone git@github.com:douglascorrea/todo-api.git
+```
+
+### Install dependencies
+
+```bash
+cd todo-api
+npm install
+```
 
 ### Environment Variables
 
