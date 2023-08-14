@@ -88,17 +88,17 @@ ESLint and Prettier are pretty standard for NodeJS projects. I've used a simple 
 #### File Structure
 
 I decided to have 4 main root folders: `src`, `test`, `prisma` and `log`.
-`src` folder contains all the source code for the application.
-`test` folder contains all the integration tests.
-`prisma` folder contains all the database schema and migrations.
-`log` folder contains all the logs for the application.
+- `src` folder contains all the source code for the application.
+- `test` folder contains all the integration tests.
+- `prisma` folder contains all the database schema and migrations.
+- `log` folder contains all the logs for the application.
 
 Inside `src` I've separated like this:
-`api` folder contains all the API endpoints. (Even that all are scoped by `userId`, I've decided to have a separate folder for each entity). Each entity has its own `controller`, `service`, `validation` files. Only the `User` entity has `routes` as every route is scoped by `userId`.
-`config` folder contains the configuration files for the application, for this project we have only `db`
-`middleware` some middleware for handling errors and notFound pages
-`utils` some utility functions for the application
-`validators/common` some common utilities for using with express-validator
+- `api` folder contains all the API endpoints. (Even that all are scoped by `userId`, I've decided to have a separate folder for each entity). Each entity has its own `controller`, `service`, `validation` files. Only the `User` entity has `routes` as every route is scoped by `userId`.
+- `config` folder contains the configuration files for the application, for this project we have only `db`
+- `middleware` some middleware for handling errors and notFound pages
+- `utils` some utility functions for the application
+- `validators/common` some common utilities for using with express-validator
 
 ### Assumptions
 
