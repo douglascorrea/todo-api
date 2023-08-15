@@ -34,6 +34,8 @@ model Todo {
     todoListId String?
     todoList TodoList? @relation(fields: [todoListId], references: [id])
     microsoftTodoId String?
+
+    @@unique([userId, microsoftTodoId])
 }
 
 model TodoList {
@@ -45,6 +47,8 @@ model TodoList {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
     microsoftTodoListId String?
+
+    @@unique([userId, microsoftTodoListId])
 }
 
 model ThirdPartyCacheStore {

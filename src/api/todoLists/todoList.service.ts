@@ -1,4 +1,7 @@
 import prisma from '../../config/database'
+import { MicrosoftAuthProvider } from '../../config/microsoft-graph-client'
+import { MicrosoftTodoService } from '../thirdParty/microsoft.service'
+import { UserService } from '../users/user.service'
 
 export class TodoListService {
   static async getAllUserTodoLists(
@@ -44,12 +47,31 @@ export class TodoListService {
       },
     })
   }
-  static async createUserTodoList(userId: string, title: string, microsoftTodoListId? : string) {
+  static async createUserTodoList(
+    userId: string,
+    title: string,
+    microsoftTodoListId?: string
+  ) {
+    if (!microsoftTodoListId) {
+      const user = await UserService.getUserById(userId)
+      let microsoftTodoList = null
+      if (user?.microsoftUserId) {
+        const authProvider = new MicrosoftAuthProvider()
+        const microsoftTodoService = new MicrosoftTodoService(
+          await authProvider.getMsalInstance(),
+          user.microsoftUserId
+        )
+        microsoftTodoList = await microsoftTodoService.createMicrosoftTodoList(
+          title
+        )
+      }
+      microsoftTodoListId = microsoftTodoList?.id
+    }
     return prisma.todoList.create({
       data: {
         title,
         userId,
-        microsoftTodoListId
+        microsoftTodoListId,
       },
     })
   }
@@ -101,12 +123,69 @@ export class TodoListService {
     todoListId: string,
     title: string
   ) {
+    const user = await UserService.getUserById(userId)
+    let microsoftTodoListId = null
+    if (user?.microsoftUserId) {
+      // check if the todo list has microsoftTodoListId
+      const todoList = await this.getUserTodoListById(userId, todoListId)
+      const authProvider = new MicrosoftAuthProvider()
+      const microsoftTodoService = new MicrosoftTodoService(
+        await authProvider.getMsalInstance(),
+        user.microsoftUserId
+      )
+      if (todoList?.microsoftTodoListId) {
+        await microsoftTodoService.updateMicrosoftTodoList(
+          todoList.microsoftTodoListId,
+          title
+        )
+      } else {
+        const microsoftTodoList = await microsoftTodoService.createMicrosoftTodoList(
+          title
+        )
+        microsoftTodoListId = microsoftTodoList?.id
+      }
+    }
     return prisma.todoList.update({
       where: {
         id: todoListId,
         userId,
       },
       data: {
+        title,
+      },
+    })
+  }
+
+  static async getUserTodoListByMicrosoftTodoListId(
+    userId: string,
+    microsoftTodoListId: string
+  ) {
+    return prisma.todoList.findFirst({
+      where: {
+        userId,
+        microsoftTodoListId,
+      },
+    })
+  }
+
+  static async upsertUserTodoListByMicrosoftTodoListId(
+    userId: string,
+    microsoftTodoListId: string,
+    title: string
+  ) {
+    return prisma.todoList.upsert({
+      where: {
+        userId_microsoftTodoListId: {
+          userId,
+          microsoftTodoListId,
+        },
+      },
+      create: {
+        userId,
+        title,
+        microsoftTodoListId,
+      },
+      update: {
         title,
       },
     })

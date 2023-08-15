@@ -81,6 +81,12 @@ export class MicrosoftTodoService {
     return await this.client?.api('/me/todo/lists').get()
   }
 
+  public async getDefaultUserTodoList() {
+    const lists = await this.getUserTodoLists()
+    const defaultList = lists.value.find((list: any) => list.wellknownListName === 'defaultList')
+    return defaultList
+  }
+
   public async getUserTodosByListId(listId: string) {
     return await this.client?.api(`/me/todo/lists/${listId}/tasks`).get()
   }
@@ -96,31 +102,49 @@ export class MicrosoftTodoService {
     return todos
   }
 
+  public async createMicrosoftTodoList(title: string) {
+    return await this.client?.api('/me/todo/lists').post({ displayName: title })
+  }
+
+  public async updateMicrosoftTodoList(listId: string, title: string) {
+    return await this.client
+      ?.api(`/me/todo/lists/${listId}`)
+      .patch({ displayName: title })
+  }
+
+  public async createMicrosoftTodo(
+    title: string,
+    description: string,
+    listId: string
+  ) {
+    return await this.client
+      ?.api(`/me/todo/lists/${listId}/tasks`)
+      .post({ title, body: { content: description, contentType: 'text' } })
+  }
+
   public async syncMicrosoftWithDatabase(dbUserId: string) {
-    const microsoftAllUserListsAndTodos =
-      await this.getAllUserListsAndTodos()
+    const microsoftAllUserListsAndTodos = await this.getAllUserListsAndTodos()
     await Promise.all([
       microsoftAllUserListsAndTodos.map(async (list) => {
         const { id, displayName } = list
-        const dbList = await TodoListService.createUserTodoList(
-          dbUserId,
-          displayName,
-          id
-        )
+        const dbList =
+          await TodoListService.upsertUserTodoListByMicrosoftTodoListId(
+            dbUserId,
+            id,
+            displayName
+          )
         await Promise.all([
           list?.todos?.map(async (todo: any) => {
             const { id, title, body } = todo
-            const description = body?.content
-            const completed = todo?.status === 'completed'
-            const dbTodo = await TodoService.createUserTodo(
+            const dbTodo = await TodoService.upsertUserTodoByMicrosoftTodoId(
               dbUserId,
+              id,
+              list.id,
               title,
-              description,
-              dbList.id
+              body?.content,
+              todo.status === 'completed'
             )
-            if (completed) {
-              await TodoService.completeUserTodoById(dbUserId, dbTodo.id)
-            }
+            return dbTodo
           }),
         ])
       }),
