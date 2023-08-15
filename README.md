@@ -37,31 +37,31 @@ Bonus:
 > Wherever you might have to take shortcuts point it out and explain what you would do differently!
 > We would like you to take assumptions and decisions of how the product and the third-party integration should work, if needed you can highlight and explain decisions in a README inside the project.
 
-## Technical Decisions and Assumptions:
+# Technical Decisions and Assumptions:
 
-### Decisions
+## Decisions
 
-### Using Typescript
+## Using Typescript
 I've decided to use Typescript as requested and also because I'm more familiar with it. It provides a good way to have a typed code and also a good way to document the code. It also provides a good way to have a good IDE support.
 
-#### Using Prisma as ORM
+## Using Prisma as ORM
 
 I decided to use Prisma as ORM for this project. It provides a way to easy manage the database schema and migrations. And it is decouple from the application code. So, if we need to change the database, we can do it easily.
 
-#### Scoping the API for a specific user
+## Scoping the API for a specific user
 
 Besides we don't have authentication/authorization for this application, I decided to scope all requests under `/api/users/:userId` which seems to be a real use case for a simple todo app. So, all requests for getting `todoLists` and `todos` must have a valid `userId` in the path. This is a simple way to avoid any security issues.
 
-#### Having 3 main entities: User, TodoList and Todo
+## Having 3 main entities: User, TodoList and Todo
 
 The 3 main entities for this project are `User`, `TodoList` and `Todo`. Each one of them have their own endpoints and can be managed separately. The `TodoList` and `Todo` entities are scoped by `User` so that is why we have the `userId` in the path for all requests.
 
-#### Using OpenAPI / Swagger for API Documentation
+## Using OpenAPI / Swagger for API Documentation
 
 I decided to use OpenAPI / Swagger for API Documentation because it is a standard and it is easy to use. It also provide a way to test the API endpoints using a web interface directly from the docs. You can easily go to the `/api/docs` endpoint, read documentation and test the API.
 There is a `swagger.json` definition on the root of the project which is used by the `swagger-ui-express` package to generate the documentation.
 
-#### Using Jest and Supertest for Integration Tests
+## Using Jest and Supertest for Integration Tests
 
 I decided to use Jest and Supertest for Integration Tests because they are easy to use and provide a good way to test the API endpoints and the database layer. I also used the `jest-openapi` package to validate the API responses against the OpenAPI / Swagger definition.
 
@@ -74,26 +74,25 @@ Currently are **101 tests** separated in *4 test suites* and covering **88.52%**
 Check [all tests screenshot](./all-tests.png)
 
 
-
-#### Using express-validator for Request Validation
+## Using express-validator for Request Validation
 
 I decided to use express-validator for Request Validation because it is easy to use and provide a good way to validate the request body, param and query parameters.
 
 I put a lot of efforts on validation, since I think this is a important part of this project to demonstrate how to validate the requests and avoid any data inconsistency in the database. And also this plays the role of implementing part of the business logic and also demonstrate my skills in this area.
 
-#### Using Winston and Morgan for Logging
+## Using Winston and Morgan for Logging
 
 I decided to use Winston and Morgan for Logging because they are easy to use and provide a good way to log the application events. For production environment we will have a `log/error.log` and `log/combined.log` if we need to debug the application.
 I've decided to silent logs on test environment to avoid noise in the test output, as I'm using TDD approach to develop this project.
 
-#### Using Docker and Docker Compose for Development and Testing
+## Using Docker and Docker Compose for Development and Testing
 
 I decided to use docker for the DB environment since it is easy to use in development and also easy to setup for integration tests
 
-#### Using ESLint and Prettier for Code Formatting
+## Using ESLint and Prettier for Code Formatting
 ESLint and Prettier are pretty standard for NodeJS projects. I've used a simple rule set for ESLint and Prettier to avoid any conflicts between them. *No Semicolons* and *Single Quotes* are the only rules that I've changed from the default configuration.
 
-#### Third Party API Integration
+## Third Party API Integration
 I've decided to sync with Microsoft Todos, using Microsoft Graph API.
 
 I will describe the flow below, but before let me explain how I've setup this integration.
@@ -125,7 +124,7 @@ Also, during the sync process on step 5, I will use the `subscribe` endpoint fro
 
 **This is work in progress**
 
-#### File Structure
+## File Structure
 
 I decided to have 4 main root folders: `src`, `test`, `prisma` and `log`.
 - `src` folder contains all the source code for the application.
@@ -140,34 +139,34 @@ Inside `src` I've separated like this:
 - `utils` some utility functions for the application
 - `validators/common` some common utilities for using with express-validator
 
-### Assumptions
+# Assumptions
 
-#### There is no authentication for this project
+## There is no authentication for this project
 
 As asked by email, I didn't implemented authentication for this project. So, all requests must have a valid `userId` in the path. This is a simple way to isolate the data for each user.
 
-## Prerequisites to Run this Project
+# Prerequisites to Run this Project
 
 - Node.js (The app run in local NodeJS environment) - v16+
     - You can use **Homebrew** to install NodeJS on Mac or **nvm** to manage multiple NodeJS versions
 - Docker and Docker Compose (the DB run in Docker container)
 
-## How to Setup
+# How to Setup
 
-### Clone this project
+## Clone this project
 
 ```bash
 git clone git@github.com:douglascorrea/todo-api.git
 ```
 
-### Install dependencies
+## Install dependencies
 
 ```bash
 cd todo-api
 npm install
 ```
 
-### Environment Variables
+## Environment Variables
 
 # THIS IS A IMPORTANT STEP
 
@@ -211,7 +210,7 @@ MICROSOFT_CLIENT_SECRET='hBJ8Q~c~t1qeXqMIJ.8uTrmz7JZnm3_3zQskfaSG'
 
 **Note**: It's a good practice not to commit `.env` files to version control. That is why .env files are in `.gitignore`.
 
-### The Docker Setup for this project
+## The Docker Setup for this project
 
 This project uses Docker to run PostgreSQL for both development and testing environments.
 
@@ -219,9 +218,9 @@ For development, the setup is handled by the `dev` script in the `package.json`.
 
 For testing, the `test:integration` script will automatically handle the setup and teardown of the Docker environment.
 
-## Running the Project
+# Running the Project
 
-### Development
+## Development
 
 To run the project in development mode:
 
@@ -235,7 +234,7 @@ It will automatically start docker containers for PostgreSQL, run the migrations
 
 The development server will be running at `http://localhost:3000`. And the API DOCs will be available at `http://localhost:3000/api/docs`.
 
-### Testing
+## Testing
 
 Most of the tests are **Integration Tests**. They test the API endpoints and the database layer. They are written using Jest and Supertest.
 
@@ -257,11 +256,11 @@ To run integration tests:
 
 This script will handle setting up the test database, running the tests, and tearing down the Docker environment.
 
-## API Documentation
+# API Documentation
 
 The API is documented using OpenAPI / Swagger and can be accessed at the `http://localhost:3000/api/docs` endpoint when the server is running.
 
-### Editing swagger defintion online
+## Editing swagger defintion online
 
 If you want to quickly see the API documentation without bringing the server up, you can use the online swagger editor and import the swagger.json (since this repo is public) file from this repository. The link to the online editor is below:
 
