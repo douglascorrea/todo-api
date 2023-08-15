@@ -15,7 +15,10 @@ This project provides an API for managing todos and todo lists for users. It's b
 
 ---
 **THIS IS STILL WORKING IN PROGRESS**
-- [ ] We would like you to integrate with another service provider. It can be any Todo service (e.g. Microsoft Todo APIs), or you can also use a mock provider. Todos should be kept in sync between our service and the third-party integration
+
+- [x] We would like you to integrate with another service provider. It can be any Todo service (e.g. Microsoft Todo APIs), or you can also use a mock provider. Todos should be kept in sync between our service and the third-party integration
+**I've decide to sync with Microsoft Todo Api via Microsoft Graph API**
+
 - [ ] Todos created in the third-party integration should always be created in our service
 - [ ] The status of todos should always be in sync between our service and the integration
 ---
@@ -91,6 +94,35 @@ I decided to use docker for the DB environment since it is easy to use in develo
 ESLint and Prettier are pretty standard for NodeJS projects. I've used a simple rule set for ESLint and Prettier to avoid any conflicts between them. *No Semicolons* and *Single Quotes* are the only rules that I've changed from the default configuration.
 
 #### Third Party API Integration
+I've decided to sync with Microsoft Todos, using Microsoft Graph API.
+
+I will describe the flow below, but before let me explain how I've setup this integration.
+
+I've to create an application on Azure as described in [this tutorial](https://learn.microsoft.com/en-us/graph/auth-register-app-v2).
+
+I'm using `@azure/msal-node` library for authenticating and `@microsoft/microsoft-graph-client`
+
+There is one **important detail** while using `msal-node`. As we need to do sync "offline", we should be able to call the API in behalf of the user without need the consent OAuth flow, even if the `accessToken` expires. Normally we could use a `refreshToken` in an OAuth flow, but the `msal-node` library does not exposes this token. And they advice to keep using they `acquireTokenSilent` method, which will check in **cache** if you have a valid `accessToken` and if not they will use the `refreshToken` from the same cache.
+
+The challenge here was that the default **cache** is `in-memory` so it will not persist between application restarts. So, I've decided to create a `cachePlugin` to persist such cache in the database.
+
+Let's go to authentication flow:
+
+Since there is no authentication in our side, but an OAuth flow is necessary on Microsoft Todo side, I've used the following approach to sync:
+1) We create a user in our application using the `/api/users` endpoint as documented in `/api/docs`
+2) We get the `userId` from the response
+3) I've created a specific endpoint for handling the OAuth flow. Normally this endpoint should be called by the client or even handled entirely by the frontend client. But for demonstration purposes I've decided to implement the entire flow in the backend.
+So with the `userId` from step 2 we call `/api/users/:userId/auth/microsoft/signin` endpoint which will redirect to Microsoft OAuth flow.
+4) The user will login in Microsoft and grant access to our application to access the Microsoft Todo API
+5) When the OAuth flow is completed, Microsoft will redirect to our `/api/users/:userId/auth/microsoft/callback` endpoint with the `code` and `state` parameters and we will sync the user's `todoLists` and `todos` with Microsoft Todo API.
+So the user that has `userId` will have all lists and todo lists from the Microsoft logged account.
+
+6) From now forward the Todos and TodosList should be kept in sync.
+For doing this I'll implement a *hook* in `TodoListsService` and `TodoService` that every mutation on our side will also call `MicrosoftTodoService` for doing that mutation in Microsoft Todo API.
+Also, during the sync process on step 5, I will use the `subscribe` endpoint from Microsoft Graph API to set a webhook for our application to receive notifications when the user's `todoLists` and `todos` are changed in Microsoft Todo API. So, when a change is detected in Microsoft Todo API, we will also update our database.
+ (**THIS STEP 6 IS STILL IN PROGRESS**)
+
+
 **This is work in progress**
 
 #### File Structure
