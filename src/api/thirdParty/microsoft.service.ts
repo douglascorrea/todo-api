@@ -140,6 +140,18 @@ export class MicrosoftTodoService {
       })
   }
 
+  public async subscribeToMicrosoftTodoListChanges(listId: string) {
+    const resource = `/me/todo/lists/${listId}/tasks`
+    return await this.client
+      ?.api(`/subscriptions`).post({
+        changeType: 'created,updated',
+        notificationUrl: `${process.env.API_URL}/api/users/microsoft/notifications`,
+        resource,
+        clientState: "secretClientValue",
+        expirationDateTime: new Date(Date.now() + 86400000).toISOString()
+      })
+  }
+
   public async syncMicrosoftWithDatabase(dbUserId: string) {
     const microsoftAllUserListsAndTodos = await this.getAllUserListsAndTodos()
     await Promise.all([
@@ -165,6 +177,7 @@ export class MicrosoftTodoService {
             return dbTodo
           }),
         ])
+        //await this.subscribeToMicrosoftTodoListChanges(id)
       }),
     ])
   }

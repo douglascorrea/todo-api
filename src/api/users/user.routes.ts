@@ -8,6 +8,7 @@ import * as TodoController from '../todos/todo.controller'
 import * as MicrosoftAuthController from '../thirdParty/microsoft.controllers'
 import { todoListValidations } from '../todoLists/todoList.validations'
 import { todoValidations } from '../todos/todo.validations'
+import logger from '../../utils/logger'
 
 const router = Router()
 
@@ -64,63 +65,69 @@ router.get(
   asyncHandler(TodoController.getAllUserTodos)
 )
 router.get(
-    '/:userId/todos/:todoId',
-    validate(...todoValidations('getById')),
-    asyncHandler(TodoController.getUserTodoById)
+  '/:userId/todos/:todoId',
+  validate(...todoValidations('getById')),
+  asyncHandler(TodoController.getUserTodoById)
 )
 router.put(
-    '/:userId/todos/:todoId',
-    validate(...todoValidations('update')),
-    asyncHandler(TodoController.updateUserTodoById)
+  '/:userId/todos/:todoId',
+  validate(...todoValidations('update')),
+  asyncHandler(TodoController.updateUserTodoById)
 )
 router.delete(
-    '/:userId/todos/:todoId',
-    validate(...todoValidations('delete')),
-    asyncHandler(TodoController.deleteUserTodoById)
+  '/:userId/todos/:todoId',
+  validate(...todoValidations('delete')),
+  asyncHandler(TodoController.deleteUserTodoById)
 )
 router.patch(
-    '/:userId/todos/:todoId/complete',
-    validate(...todoValidations('complete')),
-    asyncHandler(TodoController.completeUserTodoById)
+  '/:userId/todos/:todoId/complete',
+  validate(...todoValidations('complete')),
+  asyncHandler(TodoController.completeUserTodoById)
 )
 router.patch(
-    '/:userId/todos/:todoId/uncomplete',
-    validate(...todoValidations('uncomplete')),
-    asyncHandler(TodoController.uncompleteUserTodoById)
+  '/:userId/todos/:todoId/uncomplete',
+  validate(...todoValidations('uncomplete')),
+  asyncHandler(TodoController.uncompleteUserTodoById)
 )
 router.patch(
-    '/:userId/todos/:todoId/toggle',
-    validate(...todoValidations('toggle')),
-    asyncHandler(TodoController.toggleUserTodoById)
+  '/:userId/todos/:todoId/toggle',
+  validate(...todoValidations('toggle')),
+  asyncHandler(TodoController.toggleUserTodoById)
 )
 
 // third-party registration routes
 router.get(
-    '/:userId/auth/microsoft/signin',
-    asyncHandler(MicrosoftAuthController.signIn)
+  '/:userId/auth/microsoft/signin',
+  asyncHandler(MicrosoftAuthController.signIn)
 )
 router.get(
-    '/:userId/auth/microsoft/me',
-    asyncHandler(MicrosoftAuthController.getMe)
+  '/:userId/auth/microsoft/me',
+  asyncHandler(MicrosoftAuthController.getMe)
 )
 
 // just a simple microsoft todo route for testing
 router.get(
-    '/:userId/auth/microsoft/todoLists',
-    asyncHandler(MicrosoftAuthController.getUserTodoLists)
+  '/:userId/auth/microsoft/todoLists',
+  asyncHandler(MicrosoftAuthController.getUserTodoLists)
 )
 router.get(
-    '/:userId/auth/microsoft/todoLists/:todoListId',
-    asyncHandler(MicrosoftAuthController.getAllUserTodosByListId)
+  '/:userId/auth/microsoft/todoLists/:todoListId',
+  asyncHandler(MicrosoftAuthController.getAllUserTodosByListId)
 )
 router.get(
-    '/:userId/auth/microsoft/allUserListsAndTodos',
-    asyncHandler(MicrosoftAuthController.getAllUserListsAndTodos)
+  '/:userId/auth/microsoft/allUserListsAndTodos',
+  asyncHandler(MicrosoftAuthController.getAllUserListsAndTodos)
 )
 
+router.post('/microsoft/notifications', (req, res) => {
+  logger.error('NOTIFICATION RECEIVED')
+  logger.error('REQ QUERY', { query: req.query })
+  logger.error('REQ BODY', { body: req.body })
+  res.status(200).contentType('text/plain').send(req.query.validationToken)
+})
 
-export const microsoftAsyncHandler = asyncHandler(MicrosoftAuthController.callback)
-
-
+export const microsoftAsyncHandler = asyncHandler(
+  MicrosoftAuthController.callback
+)
 
 export default router
