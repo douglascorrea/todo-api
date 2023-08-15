@@ -177,7 +177,7 @@ export class MicrosoftTodoService {
             return dbTodo
           }),
         ])
-        //await this.subscribeToMicrosoftTodoListChanges(id)
+        await this.subscribeToMicrosoftTodoListChanges(id)
       }),
     ])
   }

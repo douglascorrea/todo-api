@@ -19,8 +19,9 @@ This project provides an API for managing todos and todo lists for users. It's b
 - [x] We would like you to integrate with another service provider. It can be any Todo service (e.g. Microsoft Todo APIs), or you can also use a mock provider. Todos should be kept in sync between our service and the third-party integration
 **I've decide to sync with Microsoft Todo Api via Microsoft Graph API**
 
-- [ ] Todos created in the third-party integration should always be created in our service
-- [ ] The status of todos should always be in sync between our service and the integration
+- [X] Todos created in the third-party integration should always be created in our service
+    - **THIS IS NOT ENTIRELY IMPLEMENTED EXPLAINED BELOW**
+- [X] The status of todos should always be in sync between our service and the integration
 ---
 
 - **Tech**
@@ -117,12 +118,15 @@ So with the `userId` from step 2 we call `/api/users/:userId/auth/microsoft/sign
 So the user that has `userId` will have all lists and todo lists from the Microsoft logged account.
 
 6) From now forward the Todos and TodosList should be kept in sync.
-For doing this I'll implement a *hook* in `TodoListsService` and `TodoService` that every mutation on our side will also call `MicrosoftTodoService` for doing that mutation in Microsoft Todo API.
-Also, during the sync process on step 5, I will use the `subscribe` endpoint from Microsoft Graph API to set a webhook for our application to receive notifications when the user's `todoLists` and `todos` are changed in Microsoft Todo API. So, when a change is detected in Microsoft Todo API, we will also update our database.
- (**THIS STEP 6 IS STILL IN PROGRESS**)
+For doing this I've implemented a *hook* in `TodoListsService` and `TodoService` that every mutation on our side will also call `MicrosoftTodoService` for doing that mutation in Microsoft Todo API.
 
+7) Also, during the sync process on step 5, I've created a `subscribeToMicrosoftTodoListChanges` method in the `MicrosoftTodoService` that will use the `subscribe` endpoint from Microsoft Graph API to set a webhook for our application to receive notifications when the user's `todoLists` and `todos` are changed in Microsoft Todo API. So, when a change is detected in Microsoft Todo API, we will also update our database.
+** THIS NOTIFICATION API HAS A LIMITATION **
+The limitation is that we can only set a notification ona specific list which will monitor only the underneat tasks. Which means if the user creates another in microsoft side we will not be able to
+receive notifications
+https://learn.microsoft.com/en-us/graph/webhooks#supported-resources
 
-**This is work in progress**
+** THIS FEATURE IS NOT FULLY TESTED I WILL CONTINUE IMPROVING IT AFTER THE DEADLINE **
 
 ## File Structure
 

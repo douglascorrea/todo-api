@@ -44,8 +44,6 @@ export async function callback(req: Request, res: Response) {
         await UserService.setUserMicrosoftUserId(dbUserId, microsoftUserId)
         // now we need to sync all todoLists and respective todos to our database
         await microsoftGraphClient.syncMicrosoftWithDatabase(dbUserId)
-        // subscribing to notifications
-
       }
       logger.debug('USER', { user })
     } else {
