@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import logger from '../../utils/logger'
 import {
   MicrosoftAuthProvider,
-  MicrosoftGraphClient,
 } from '../../config/microsoft-graph-client'
 import { UserService } from '../users/user.service'
 import { MicrosoftTodoService } from './microsoft.service'
@@ -34,7 +33,7 @@ export async function callback(req: Request, res: Response) {
     const microsoftUserId = response?.account?.homeAccountId
 
     if (microsoftUserId) {
-      const microsoftGraphClient = new MicrosoftGraphClient(
+      const microsoftGraphClient = new MicrosoftTodoService(
         await authProvider.getMsalInstance(),
         microsoftUserId
       )
@@ -43,6 +42,8 @@ export async function callback(req: Request, res: Response) {
         // persist microsoftUserId to dbUser
         logger.debug('PERSISTING MICROSOFT USER ID', { microsoftUserId })
         await UserService.setUserMicrosoftUserId(dbUserId, microsoftUserId)
+        // now we need to sync all todoLists and respective todos to our database
+        await microsoftGraphClient.syncMicrosoftWithDatabase(dbUserId)
       }
       logger.debug('USER', { user })
     } else {
@@ -64,7 +65,7 @@ export async function getMe(req: Request, res: Response) {
     return res.status(404).send('No Microsoft user ID found')
   }
   const authProvider = new MicrosoftAuthProvider()
-  const microsoftGraphClient = new MicrosoftGraphClient(
+  const microsoftGraphClient = new MicrosoftTodoService(
     await authProvider.getMsalInstance(),
     microsoftUserId
   )
@@ -88,6 +89,36 @@ export async function getUserTodoLists(req: Request, res: Response) {
   return res.json({
     todoLists,
   })
+}
+
+export async function getAllUserTodosByListId(req: Request, res: Response) {
+    const listId = req?.params?.todoListId
+    const microsoftUserId = await getMicrosoftUserId(req)
+    if (!microsoftUserId) {
+        return res.status(404).send('No Microsoft user ID found')
+    }
+    const authProvider = new MicrosoftAuthProvider()
+    const microsoftTodoService = new MicrosoftTodoService(
+        await authProvider.getMsalInstance(),
+        microsoftUserId
+    )
+    const allTodosByListId = await microsoftTodoService.getUserTodosByListId(listId)
+    return res.json(allTodosByListId)
+
+}
+
+export async function getAllUserListsAndTodos(req: Request, res:Response) {
+    const microsoftUserId = await getMicrosoftUserId(req)
+    if (!microsoftUserId) {
+        return res.status(404).send('No Microsoft user ID found')
+    }
+    const authProvider = new MicrosoftAuthProvider()
+    const microsoftTodoService = new MicrosoftTodoService(
+        await authProvider.getMsalInstance(),
+        microsoftUserId
+    )
+    const allTodos = await microsoftTodoService.getAllUserListsAndTodos()
+    return res.json(allTodos)
 }
 
 async function getMicrosoftUserId(req: Request) {

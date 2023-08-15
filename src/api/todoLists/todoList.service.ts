@@ -44,11 +44,12 @@ export class TodoListService {
       },
     })
   }
-  static async createUserTodoList(userId: string, title: string) {
+  static async createUserTodoList(userId: string, title: string, microsoftTodoListId? : string) {
     return prisma.todoList.create({
       data: {
         title,
         userId,
+        microsoftTodoListId
       },
     })
   }

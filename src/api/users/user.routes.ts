@@ -106,8 +106,16 @@ router.get(
 
 // just a simple microsoft todo route for testing
 router.get(
-    '/:userId/auth/microsoft/todolists',
+    '/:userId/auth/microsoft/todoLists',
     asyncHandler(MicrosoftAuthController.getUserTodoLists)
+)
+router.get(
+    '/:userId/auth/microsoft/todoLists/:todoListId',
+    asyncHandler(MicrosoftAuthController.getAllUserTodosByListId)
+)
+router.get(
+    '/:userId/auth/microsoft/allUserListsAndTodos',
+    asyncHandler(MicrosoftAuthController.getAllUserListsAndTodos)
 )
 
 

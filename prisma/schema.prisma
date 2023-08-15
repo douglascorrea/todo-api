@@ -33,6 +33,7 @@ model Todo {
     userId String?
     todoListId String?
     todoList TodoList? @relation(fields: [todoListId], references: [id])
+    microsoftTodoId String?
 }
 
 model TodoList {
@@ -43,6 +44,7 @@ model TodoList {
     todos Todo[]
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
+    microsoftTodoListId String?
 }
 
 model ThirdPartyCacheStore {
