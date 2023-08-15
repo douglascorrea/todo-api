@@ -40,6 +40,7 @@ export const getUserTodoById = async (req: Request, res: Response) => {
 
 export const updateUserTodoById = async (req: Request, res: Response) => {
   const todo = await TodoService.updateUserTodoById(
+    req.params.userId,
     req.params.todoId,
     req.body.title,
     req.body.description,

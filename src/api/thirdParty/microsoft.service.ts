@@ -83,7 +83,9 @@ export class MicrosoftTodoService {
 
   public async getDefaultUserTodoList() {
     const lists = await this.getUserTodoLists()
-    const defaultList = lists.value.find((list: any) => list.wellknownListName === 'defaultList')
+    const defaultList = lists.value.find(
+      (list: any) => list.wellknownListName === 'defaultList'
+    )
     return defaultList
   }
 
@@ -120,6 +122,22 @@ export class MicrosoftTodoService {
     return await this.client
       ?.api(`/me/todo/lists/${listId}/tasks`)
       .post({ title, body: { content: description, contentType: 'text' } })
+  }
+
+  public async updateMicrosoftTodo(
+    todoId: string,
+    title: string,
+    description: string,
+    listId: string,
+    status: string
+  ) {
+    return await this.client
+      ?.api(`/me/todo/lists/${listId}/tasks/${todoId}`)
+      .patch({
+        title,
+        body: { content: description, contentType: 'text' },
+        status,
+      })
   }
 
   public async syncMicrosoftWithDatabase(dbUserId: string) {
